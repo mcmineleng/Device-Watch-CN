@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,9 +43,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import org.jarsi.devicewatch.BuildConfig
 import org.jarsi.devicewatch.R
 import org.jarsi.devicewatch.data.DataCounterMode
@@ -61,8 +66,24 @@ internal fun SettingsTab(
     onDataCounterModeSelected: (DataCounterMode) -> Unit,
     onCycleStartDayChange: (Int) -> Unit,
     onCommitCycleStartDay: () -> Unit,
+    onShowIntro: () -> Unit,
 ) {
     val context = LocalContext.current
+
+    // Runtime-permission status mirrors the intro's permission page, so Settings
+    // shows all three grants — not just the two special-access ones.
+    var runtimePermissionsGranted by remember {
+        mutableStateOf(missingRuntimePermissions(context).isEmpty())
+    }
+    val runtimePermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) {
+        runtimePermissionsGranted = missingRuntimePermissions(context).isEmpty()
+    }
+    LifecycleResumeEffect(Unit) {
+        runtimePermissionsGranted = missingRuntimePermissions(context).isEmpty()
+        onPauseOrDispose { }
+    }
 
     val dreamPrefs = remember(context) {
         context.getSharedPreferences(DreamPreferences.PREFS_NAME, Context.MODE_PRIVATE)
@@ -164,7 +185,7 @@ internal fun SettingsTab(
                 DataCounterMode.entries.forEachIndexed { index, mode ->
                     SegmentedButton(
                         selected = uiState.dataCounterMode == mode,
-                        onClick = { onDataCounterModeSelected(mode) },
+                        onClick = withTapHaptic { onDataCounterModeSelected(mode) },
                         shape = SegmentedButtonDefaults.itemShape(
                             index = index,
                             count = DataCounterMode.entries.size
@@ -194,7 +215,7 @@ internal fun SettingsTab(
                 Slider(
                     value = uiState.cycleStartDay.toFloat(),
                     onValueChange = { onCycleStartDayChange(it.roundToInt()) },
-                    onValueChangeFinished = onCommitCycleStartDay,
+                    onValueChangeFinished = withTapHaptic(onCommitCycleStartDay),
                     valueRange = 1f..31f,
                     steps = 29,
                     modifier = Modifier.fillMaxWidth()
@@ -228,7 +249,7 @@ internal fun SettingsTab(
                 Slider(
                     value = uiState.widgetOpacity,
                     onValueChange = onWidgetOpacityChange,
-                    onValueChangeFinished = onCommitWidgetOpacity,
+                    onValueChangeFinished = withTapHaptic(onCommitWidgetOpacity),
                     valueRange = 0.30f..1.0f,
                     modifier = Modifier.weight(1f)
                 )
@@ -274,7 +295,7 @@ internal fun SettingsTab(
                 Spacer(modifier = Modifier.width(12.dp))
                 Switch(
                     checked = forcePortraitScreensaver,
-                    onCheckedChange = { checked ->
+                    onCheckedChange = withTapHaptic { checked ->
                         forcePortraitScreensaver = checked
                         dreamPrefs.edit()
                             .putBoolean(DreamPreferences.KEY_FORCE_PORTRAIT, checked)
@@ -305,7 +326,7 @@ internal fun SettingsTab(
                 Spacer(modifier = Modifier.width(12.dp))
                 Switch(
                     checked = dimScreensaver,
-                    onCheckedChange = { checked ->
+                    onCheckedChange = withTapHaptic { checked ->
                         dimScreensaver = checked
                         dreamPrefs.edit()
                             .putBoolean(DreamPreferences.KEY_DIM_SCREENSAVER, checked)
@@ -336,7 +357,7 @@ internal fun SettingsTab(
                 Spacer(modifier = Modifier.width(12.dp))
                 Switch(
                     checked = nightDimScreensaver,
-                    onCheckedChange = { checked ->
+                    onCheckedChange = withTapHaptic { checked ->
                         nightDimScreensaver = checked
                         dreamPrefs.edit()
                             .putBoolean(DreamPreferences.KEY_NIGHT_DIM, checked)
@@ -349,7 +370,7 @@ internal fun SettingsTab(
                 Spacer(modifier = Modifier.height(10.dp))
                 Row(modifier = Modifier.fillMaxWidth()) {
                     OutlinedButton(
-                        onClick = { showNightDimStartPicker = true },
+                        onClick = withTapHaptic { showNightDimStartPicker = true },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
@@ -363,7 +384,7 @@ internal fun SettingsTab(
                     }
                     Spacer(modifier = Modifier.width(12.dp))
                     OutlinedButton(
-                        onClick = { showNightDimEndPicker = true },
+                        onClick = withTapHaptic { showNightDimEndPicker = true },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
@@ -381,7 +402,7 @@ internal fun SettingsTab(
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedButton(
-                onClick = { openSpecialAccessSettings(Settings.ACTION_DREAM_SETTINGS) },
+                onClick = withTapHaptic { openSpecialAccessSettings(Settings.ACTION_DREAM_SETTINGS) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             ) {
@@ -403,10 +424,38 @@ internal fun SettingsTab(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                AccessStatusDot(granted = runtimePermissionsGranted)
+                Spacer(modifier = Modifier.width(10.dp))
+                OutlinedButton(
+                    onClick = withTapHaptic {
+                        val missing = missingRuntimePermissions(context)
+                        when {
+                            missing.isEmpty() -> Unit
+                            context.runtimePermissionsPermanentlyDenied(missing) ->
+                                context.openAppDetailsSettings()
+                            else -> {
+                                context.markRuntimePermissionsRequested()
+                                runtimePermissionLauncher.launch(missing)
+                            }
+                        }
+                    },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(stringResource(R.string.onboarding_runtime_permissions_label), fontSize = 12.sp)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 AccessStatusDot(granted = uiState.usageAccessEnabled)
                 Spacer(modifier = Modifier.width(10.dp))
                 OutlinedButton(
-                    onClick = { openSpecialAccessSettings(Settings.ACTION_USAGE_ACCESS_SETTINGS) },
+                    onClick = withTapHaptic { openSpecialAccessSettings(Settings.ACTION_USAGE_ACCESS_SETTINGS) },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp)
                 ) {
@@ -423,7 +472,7 @@ internal fun SettingsTab(
                 AccessStatusDot(granted = uiState.notificationAccessEnabled)
                 Spacer(modifier = Modifier.width(10.dp))
                 OutlinedButton(
-                    onClick = {
+                    onClick = withTapHaptic {
                         openSpecialAccessSettings(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
                     },
                     modifier = Modifier.weight(1f),
@@ -444,11 +493,21 @@ internal fun SettingsTab(
             Spacer(modifier = Modifier.height(10.dp))
 
             OutlinedButton(
-                onClick = { openPrivacyDashboard() },
+                onClick = withTapHaptic { openPrivacyDashboard() },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Text(stringResource(R.string.privacy_dashboard_button), fontSize = 12.sp)
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            OutlinedButton(
+                onClick = withTapHaptic(onShowIntro),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text(stringResource(R.string.settings_show_intro), fontSize = 12.sp)
             }
         }
 
@@ -465,11 +524,16 @@ internal fun SettingsTab(
 }
 
 @Composable
-private fun AccessStatusDot(granted: Boolean) {
+internal fun AccessStatusDot(granted: Boolean) {
+    // Color is the only visual signal, so TalkBack needs the state spelled out.
+    val stateText = stringResource(
+        if (granted) R.string.access_state_granted else R.string.access_state_missing
+    )
     Box(
         modifier = Modifier
             .size(10.dp)
             .clip(CircleShape)
             .background(if (granted) Color(0xFF4CAF50) else Color(0xFFF44336))
+            .semantics { contentDescription = stateText }
     )
 }

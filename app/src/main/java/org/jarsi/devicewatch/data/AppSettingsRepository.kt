@@ -19,4 +19,9 @@ interface AppSettingsRepository {
     fun appsOldestFirst(): Boolean
 
     fun setAppsOldestFirst(oldestFirst: Boolean)
+
+    /** True once the first-run intro has been completed or skipped. */
+    fun onboardingShown(): Boolean
+
+    fun setOnboardingShown()
 }

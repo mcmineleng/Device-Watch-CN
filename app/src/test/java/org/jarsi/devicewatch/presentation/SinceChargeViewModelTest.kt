@@ -8,6 +8,7 @@ import org.jarsi.devicewatch.data.ChargeAnchorStore
 import org.jarsi.devicewatch.data.ChargeAnchorType
 import org.jarsi.devicewatch.data.DataUsageSince
 import org.jarsi.devicewatch.data.DeviceInfo
+import org.jarsi.devicewatch.data.MonthlyDataUsage
 import org.jarsi.devicewatch.data.NotificationLog
 import org.jarsi.devicewatch.data.NotificationLogEntry
 import org.jarsi.devicewatch.data.SystemStats
@@ -36,7 +37,12 @@ class SinceChargeViewModelTest {
     @After fun tearDown() = Dispatchers.resetMain()
 
     private class FakeAnchorStore(var state: ChargeAnchorLogic.State) : ChargeAnchorStore {
-        override fun load(): ChargeAnchorLogic.State = state
+        var loadCalls = 0
+            private set
+        override fun load(): ChargeAnchorLogic.State {
+            loadCalls++
+            return state
+        }
         override fun save(state: ChargeAnchorLogic.State) {
             this.state = state
         }
@@ -54,6 +60,7 @@ class SinceChargeViewModelTest {
         override suspend fun getStats(): SystemStats = error("not used by SinceChargeViewModel")
         override suspend fun getDeviceInfo(): DeviceInfo = error("not used by SinceChargeViewModel")
         override suspend fun dataUsedSince(startMillis: Long) = DataUsageSince(wifiGb, mobileGb)
+        override suspend fun monthlyDataUsage(monthsBack: Int): List<MonthlyDataUsage> = emptyList()
     }
 
     private class FakeLog(private val entries: List<NotificationLogEntry>) : NotificationLog {
@@ -93,6 +100,21 @@ class SinceChargeViewModelTest {
             gate.await()
             return emptyList()
         }
+    }
+
+    @Test
+    fun `a pull during an in-flight load runs a fresh reload right after it`() = runTest {
+        val store = FakeAnchorStore(anchorState())
+        val viewModel = buildViewModel(store = store)
+
+        viewModel.load()
+        viewModel.refresh()
+        dispatcher.scheduler.advanceUntilIdle()
+
+        // The pull chains a second, fresh load instead of being satisfied by the
+        // in-flight one (which may carry stale anchor/battery state).
+        assertThat(store.loadCalls).isEqualTo(2)
+        assertThat(viewModel.uiState.value.isRefreshing).isFalse()
     }
 
     @Test

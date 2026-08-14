@@ -1,5 +1,7 @@
 package org.jarsi.devicewatch.data
 
+import java.time.YearMonth
+
 /**
  * Single source of truth for live device statistics.
  *
@@ -10,6 +12,9 @@ package org.jarsi.devicewatch.data
 /** Device-level data usage over a window; negative values mean unavailable. */
 data class DataUsageSince(val wifiGb: Double, val mobileGb: Double)
 
+/** Device-level data usage for one calendar month; negative values mean unavailable. */
+data class MonthlyDataUsage(val month: YearMonth, val mobileGb: Double, val wifiGb: Double)
+
 interface SystemStatsRepository {
     suspend fun getStats(): SystemStats
 
@@ -18,4 +23,10 @@ interface SystemStatsRepository {
 
     /** Total Wi-Fi and (metered) mobile data used since [startMillis]. */
     suspend fun dataUsedSince(startMillis: Long): DataUsageSince
+
+    /**
+     * Wi-Fi and (metered) mobile usage for the current plus [monthsBack] previous calendar
+     * months, newest first. Served straight from Android's own stats — no local storage.
+     */
+    suspend fun monthlyDataUsage(monthsBack: Int = 12): List<MonthlyDataUsage>
 }

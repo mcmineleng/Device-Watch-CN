@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -41,20 +42,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLocale
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jarsi.devicewatch.R
+import org.jarsi.devicewatch.data.MonthlyDataUsage
 import org.jarsi.devicewatch.data.NotificationLogEntry
 import org.jarsi.devicewatch.presentation.HistoryDay
 import org.jarsi.devicewatch.presentation.HistoryViewModel
 import kotlinx.coroutines.delay
 import java.time.Instant
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -76,6 +81,7 @@ fun HistoryPage(
     viewModel: HistoryViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
+    val view = LocalView.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     // Initial load + silent refresh while the page stays open, so new
@@ -94,7 +100,7 @@ fun HistoryPage(
             TopAppBar(
                 title = { Text(stringResource(R.string.history_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = withTapHaptic(onBack)) {
                         Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.content_description_back))
                     }
                 },
@@ -104,86 +110,123 @@ fun HistoryPage(
             )
         }
     ) { paddingValues ->
-        LazyColumn(
+        PullToRefreshBox(
+            isRefreshing = uiState.isRefreshing,
+            onRefresh = {
+                view.performTapHaptic()
+                viewModel.refresh()
+            },
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+                .padding(paddingValues)
         ) {
-            item(key = "metric_chips") {
-                MetricChipRow(selected = selectedMetric, onSelect = { selectedMetric = it })
-            }
-
-            val visibleDays = daysNewestFirstSinceFirstData(uiState.days, selectedMetric)
-            if (visibleDays.isEmpty()) {
-                if (!uiState.isLoading) {
-                    item(key = "metric_empty") {
-                        Text(
-                            text = stringResource(R.string.history_metric_empty),
-                            fontSize = 13.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                item(key = "metric_chips") {
+                    MetricChipRow(selected = selectedMetric, onSelect = { selectedMetric = it })
                 }
-            } else {
-                item(key = "day_list") {
-                    HistoryDayList(days = visibleDays, metric = selectedMetric)
-                }
-            }
 
-            item(key = "log_header") {
-                Text(
-                    text = stringResource(R.string.history_log_section),
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            if (uiState.logEntries.isEmpty()) {
-                if (!uiState.isLoading) {
-                    item(key = "log_empty") {
-                        Column(modifier = Modifier.fillMaxWidth()) {
+                val visibleDays = daysNewestFirstSinceFirstData(uiState.days, selectedMetric)
+                if (visibleDays.isEmpty()) {
+                    if (!uiState.isLoading) {
+                        item(key = "metric_empty") {
                             Text(
-                                text = stringResource(R.string.history_log_empty),
+                                text = stringResource(R.string.history_metric_empty),
                                 fontSize = 13.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
-                            if (!uiState.listenerEnabled) {
-                                TextButton(onClick = {
-                                    try {
-                                        context.startActivity(
-                                            Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).apply {
-                                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                            }
-                                        )
-                                    } catch (e: Exception) {
-                                        e.printStackTrace()
+                        }
+                    }
+                } else {
+                    item(key = "day_list") {
+                        HistoryDayList(days = visibleDays, metric = selectedMetric)
+                    }
+                }
+
+                if (uiState.monthlyUsage.isNotEmpty()) {
+                    item(key = "monthly_data_header") {
+                        Text(
+                            text = stringResource(R.string.history_monthly_data_section),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    item(key = "monthly_data") {
+                        MonthlyDataSection(
+                            monthly = uiState.monthlyUsage,
+                            onOpenUsageAccess = {
+                                try {
+                                    context.startActivity(
+                                        Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).apply {
+                                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                        }
+                                    )
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
+                            },
+                        )
+                    }
+                }
+
+                item(key = "log_header") {
+                    Text(
+                        text = stringResource(R.string.history_log_section),
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
+                if (uiState.logEntries.isEmpty()) {
+                    if (!uiState.isLoading) {
+                        item(key = "log_empty") {
+                            Column(modifier = Modifier.fillMaxWidth()) {
+                                Text(
+                                    text = stringResource(R.string.history_log_empty),
+                                    fontSize = 13.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                if (!uiState.listenerEnabled) {
+                                    TextButton(onClick = withTapHaptic {
+                                        try {
+                                            context.startActivity(
+                                                Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).apply {
+                                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                }
+                                            )
+                                        } catch (e: Exception) {
+                                            e.printStackTrace()
+                                        }
+                                    }) {
+                                        Text(stringResource(R.string.notification_access_enable), fontSize = 12.sp)
                                     }
-                                }) {
-                                    Text(stringResource(R.string.notification_access_enable), fontSize = 12.sp)
                                 }
                             }
                         }
                     }
-                }
-            } else {
-                val grouped = uiState.logEntries.groupBy {
-                    Instant.ofEpochMilli(it.timeMillis).atZone(ZoneId.systemDefault()).toLocalDate()
-                }
-                grouped.forEach { (day, entries) ->
-                    item(key = "day_header_$day") {
-                        Text(
-                            text = dayHeaderText(day),
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
+                } else {
+                    val grouped = uiState.logEntries.groupBy {
+                        Instant.ofEpochMilli(it.timeMillis).atZone(ZoneId.systemDefault()).toLocalDate()
                     }
-                    items(entries) { entry -> NotificationLogRow(entry) }
+                    grouped.forEach { (day, entries) ->
+                        item(key = "day_header_$day") {
+                            Text(
+                                text = dayHeaderText(day),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
+                        items(entries) { entry -> NotificationLogRow(entry) }
+                    }
                 }
             }
         }
@@ -220,6 +263,102 @@ private fun weekdayDateFormatter(): DateTimeFormatter {
     }
 }
 
+/** Localized standalone "month + year" formatter (e.g. "elokuu 2026" / "August 2026"). */
+@Composable
+private fun monthYearFormatter(): DateTimeFormatter {
+    val locale = LocalLocale.current.platformLocale
+    return remember(locale) {
+        DateTimeFormatter.ofPattern(
+            android.text.format.DateFormat.getBestDateTimePattern(locale, "LLLLyyyy"),
+            locale
+        )
+    }
+}
+
+/**
+ * Monthly Wi-Fi/mobile totals served straight from Android's own network stats,
+ * newest first, current month in bold. Months past Android's retention render a
+ * dash. Deliberately no data-SIM name here: these are device-wide aggregates and
+ * the active data SIM may have changed mid-history.
+ */
+@Composable
+private fun MonthlyDataSection(
+    monthly: List<MonthlyDataUsage>,
+    onOpenUsageAccess: () -> Unit,
+) {
+    val accessMissing = monthly.all { it.mobileGb < 0.0 && it.wifiGb < 0.0 }
+    Column(modifier = Modifier.fillMaxWidth()) {
+        if (accessMissing) {
+            Text(
+                text = stringResource(R.string.history_monthly_usage_access_missing),
+                fontSize = 13.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            TextButton(onClick = withTapHaptic(onOpenUsageAccess)) {
+                Text(stringResource(R.string.usage_access_button), fontSize = 12.sp)
+            }
+        } else {
+            val monthFormatter = monthYearFormatter()
+            val currentMonth = YearMonth.now()
+            Row(modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
+                Spacer(modifier = Modifier.weight(1.1f))
+                Text(
+                    text = stringResource(R.string.history_monthly_mobile_column),
+                    fontSize = 11.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.weight(1.1f)
+                )
+                Text(
+                    text = stringResource(R.string.history_monthly_wifi_column),
+                    fontSize = 11.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.weight(0.8f)
+                )
+            }
+            monthly.forEach { month ->
+                val isCurrent = month.month == currentMonth
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 5.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = month.month.format(monthFormatter)
+                            .replaceFirstChar { it.uppercaseChar() },
+                        fontSize = 13.sp,
+                        fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.weight(1.1f)
+                    )
+                    Text(
+                        text = gbTodayText(month.mobileGb),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.End,
+                        modifier = Modifier.weight(1.1f)
+                    )
+                    Text(
+                        text = gbTodayText(month.wifiGb),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.End,
+                        modifier = Modifier.weight(0.8f)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = stringResource(R.string.history_monthly_metered_note),
+                fontSize = 11.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
 @Composable
 private fun MetricChipRow(selected: HistoryMetric, onSelect: (HistoryMetric) -> Unit) {
     Row(
@@ -231,7 +370,7 @@ private fun MetricChipRow(selected: HistoryMetric, onSelect: (HistoryMetric) -> 
         HistoryMetric.entries.forEach { metric ->
             FilterChip(
                 selected = metric == selected,
-                onClick = { onSelect(metric) },
+                onClick = withTapHaptic { onSelect(metric) },
                 label = { Text(stringResource(metric.labelRes), fontSize = 12.sp) }
             )
         }
@@ -299,16 +438,17 @@ private fun NotificationLogRow(entry: NotificationLogEntry) {
     val launchIntent = remember(entry.packageName) {
         context.packageManager.getLaunchIntentForPackage(entry.packageName)
     }
+    val openApp = withTapHaptic {
+        try {
+            context.startActivity(launchIntent)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(enabled = launchIntent != null) {
-                try {
-                    context.startActivity(launchIntent)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
+            .clickable(enabled = launchIntent != null, onClick = openApp)
             .padding(vertical = 6.dp),
         verticalAlignment = Alignment.Top
     ) {

@@ -3,6 +3,8 @@ package org.jarsi.devicewatch.data
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import java.time.LocalDate
+import java.time.YearMonth
+import java.time.ZoneId
 
 class DataPeriodCalculatorTest {
 
@@ -108,5 +110,39 @@ class DataPeriodCalculatorTest {
 
         assertThat(high).isEqualTo(LocalDate.of(2026, 7, 31))
         assertThat(low).isEqualTo(LocalDate.of(2026, 7, 1))
+    }
+
+    private val helsinki = ZoneId.of("Europe/Helsinki")
+
+    @Test
+    fun `given 12 months back, when computing month ranges, then current plus twelve newest first`() {
+        val ranges = DataPeriodCalculator.monthRanges(LocalDate.of(2026, 8, 13), helsinki, monthsBack = 12)
+
+        assertThat(ranges).hasSize(13)
+        assertThat(ranges.first().month).isEqualTo(YearMonth.of(2026, 8))
+        assertThat(ranges.last().month).isEqualTo(YearMonth.of(2025, 8))
+    }
+
+    @Test
+    fun `given a month range, when reading millis, then they span the calendar month in the zone`() {
+        val ranges = DataPeriodCalculator.monthRanges(LocalDate.of(2026, 8, 13), helsinki, monthsBack = 1)
+
+        val july = ranges[1]
+        assertThat(july.month).isEqualTo(YearMonth.of(2026, 7))
+        assertThat(july.startMillis).isEqualTo(
+            LocalDate.of(2026, 7, 1).atStartOfDay(helsinki).toInstant().toEpochMilli()
+        )
+        assertThat(july.endMillis).isEqualTo(
+            LocalDate.of(2026, 8, 1).atStartOfDay(helsinki).toInstant().toEpochMilli()
+        )
+    }
+
+    @Test
+    fun `given january, when computing month ranges, then previous months cross the year boundary`() {
+        val ranges = DataPeriodCalculator.monthRanges(LocalDate.of(2026, 1, 15), helsinki, monthsBack = 2)
+
+        assertThat(ranges.map { it.month }).containsExactly(
+            YearMonth.of(2026, 1), YearMonth.of(2025, 12), YearMonth.of(2025, 11)
+        ).inOrder()
     }
 }

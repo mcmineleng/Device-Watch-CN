@@ -46,11 +46,21 @@ class AppSettingsRepositoryImpl @Inject constructor(
         prefs.edit().putBoolean(KEY_APPS_OLDEST_FIRST, oldestFirst).apply()
     }
 
+    override fun onboardingShown(): Boolean =
+        prefs.getBoolean(KEY_ONBOARDING_SHOWN, false)
+
+    override fun setOnboardingShown() {
+        prefs.edit().putBoolean(KEY_ONBOARDING_SHOWN, true).apply()
+    }
+
     companion object {
         const val PREFS_NAME = "app_settings"
         const val KEY_DATA_COUNTER_MODE = "data_counter_mode"
         const val KEY_CYCLE_START_DAY = "cycle_start_day"
         const val KEY_APPS_OLDEST_FIRST = "apps_oldest_first"
+        const val KEY_ONBOARDING_SHOWN = "onboarding_shown"
+        /** Written from the UI helpers in OnboardingPage.kt (permanent-denial detection). */
+        const val KEY_RUNTIME_PERMISSIONS_REQUESTED = "runtime_permissions_requested"
         const val DEFAULT_CYCLE_START_DAY = 1
     }
 }

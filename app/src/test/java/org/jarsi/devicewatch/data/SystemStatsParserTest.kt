@@ -184,6 +184,23 @@ class SystemStatsParserTest {
         assertThat(SystemStatsParser.dischargeTimeRemainingMinutes(3_000_000, -20_000_000)).isNull()
     }
 
+    // --- active data-SIM display name ---
+
+    @Test
+    fun `dataSimDisplayName shows the carrier only with two or more active SIMs`() {
+        assertThat(SystemStatsParser.dataSimDisplayName("DNA", 2)).isEqualTo("DNA")
+        assertThat(SystemStatsParser.dataSimDisplayName("DNA", 3)).isEqualTo("DNA")
+    }
+
+    @Test
+    fun `dataSimDisplayName is unavailable for a single SIM, blank name, or none`() {
+        assertThat(SystemStatsParser.dataSimDisplayName("DNA", 1)).isEqualTo(UNAVAILABLE_TEXT)
+        assertThat(SystemStatsParser.dataSimDisplayName("DNA", 0)).isEqualTo(UNAVAILABLE_TEXT)
+        assertThat(SystemStatsParser.dataSimDisplayName("", 2)).isEqualTo(UNAVAILABLE_TEXT)
+        assertThat(SystemStatsParser.dataSimDisplayName("   ", 2)).isEqualTo(UNAVAILABLE_TEXT)
+        assertThat(SystemStatsParser.dataSimDisplayName(null, 2)).isEqualTo(UNAVAILABLE_TEXT)
+    }
+
     // --- display density bucket ---
 
     @Test

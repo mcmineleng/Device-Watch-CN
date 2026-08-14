@@ -58,6 +58,8 @@ data class SystemStats(
     val simOperator: String,
     val simState: String,
     val simSlots: Int,
+    /** Active data-SIM carrier for display; [UNAVAILABLE_TEXT] unless ≥2 active SIMs. */
+    val dataSimName: String,
     val networkCountry: String,
     val wifiRssiDbm: Int,
     val wifiLinkSpeedMbps: Int,

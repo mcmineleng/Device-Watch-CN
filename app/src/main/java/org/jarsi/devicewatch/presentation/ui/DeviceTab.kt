@@ -33,14 +33,14 @@ internal fun DeviceTab(uiState: DashboardUiState) {
                 DeviceInfoRow(R.string.device_info_codename, info.codename)
                 DeviceInfoRow(R.string.device_info_android, info.androidVersion)
                 DeviceInfoRow(R.string.device_info_security_patch, info.securityPatch)
-                DeviceInfoRow(R.string.device_info_build, info.buildNumber)
+                DeviceInfoRowLong(R.string.device_info_build, info.buildNumber)
                 DeviceInfoRow(R.string.device_info_bootloader, info.bootloader)
                 DeviceInfoRow(R.string.device_info_radio, info.radioVersion)
                 DeviceInfoRow(R.string.device_info_soc, info.soc)
-                DeviceInfoRow(R.string.device_info_abis, info.supportedAbis)
-                DeviceInfoRow(R.string.device_info_kernel, info.kernelVersion)
+                DeviceInfoRowLong(R.string.device_info_abis, info.supportedAbis)
+                DeviceInfoRowLong(R.string.device_info_kernel, info.kernelVersion)
                 DeviceInfoRow(R.string.device_info_gpu, info.gpuRenderer)
-                DeviceInfoRow(R.string.device_info_gl, info.glVersion)
+                DeviceInfoRowLong(R.string.device_info_gl, info.glVersion)
                 DeviceInfoRow(R.string.device_info_resolution, info.screenResolution)
                 DeviceInfoRow(R.string.device_info_density, info.screenDensity)
                 DeviceInfoRow(R.string.device_info_physical_size, info.physicalSize)
@@ -61,7 +61,7 @@ internal fun DeviceTab(uiState: DashboardUiState) {
 
             SettingsSectionCard(titleRes = R.string.sensors_section) {
                 DeviceInfoRow(R.string.sensors_count, info.sensorCount)
-                DeviceInfoRow(R.string.sensors_present, info.sensors)
+                DeviceInfoRowLong(R.string.sensors_present, info.sensors)
             }
 
             SettingsSectionCard(titleRes = R.string.system_info_section) {
@@ -69,7 +69,7 @@ internal fun DeviceTab(uiState: DashboardUiState) {
                 DeviceInfoRow(R.string.system_timezone, info.timezone)
                 DeviceInfoRow(R.string.system_webview, info.webViewVersion)
                 DeviceInfoRow(R.string.system_play_services, info.playServicesVersion)
-                DeviceInfoRow(R.string.system_features, info.deviceFeatures)
+                DeviceInfoRowLong(R.string.system_features, info.deviceFeatures)
                 DeviceInfoRow(R.string.device_info_boot_count, info.bootCountTotal)
             }
         }
@@ -94,7 +94,7 @@ internal fun DeviceTab(uiState: DashboardUiState) {
             DeviceInfoRow(wifiDataLabelRes(uiState.dataCounterMode), gbTodayText(currentStats.wifiBytesTodayGb))
             uiState.deviceInfo?.let { info ->
                 DeviceInfoRow(R.string.wifi_vpn, info.vpnActive)
-                DeviceInfoRow(R.string.wifi_dns, info.dnsServers)
+                DeviceInfoRowLong(R.string.wifi_dns, info.dnsServers)
             }
         }
     }

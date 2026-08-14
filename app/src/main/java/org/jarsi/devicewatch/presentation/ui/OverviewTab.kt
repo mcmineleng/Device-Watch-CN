@@ -110,7 +110,7 @@ internal fun OverviewTab(
             titleRes = R.string.battery_status_section,
             modifier = Modifier
                 .clip(RoundedCornerShape(20.dp))
-                .clickable(onClick = onOpenSinceCharge),
+                .clickable(onClick = withTapHaptic(onOpenSinceCharge)),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
@@ -199,7 +199,7 @@ internal fun OverviewTab(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(20.dp))
-                .clickable(onClick = onOpenHistory)
+                .clickable(onClick = withTapHaptic(onOpenHistory))
         ) {
             SettingsSectionCard(
                 titleRes = if (uiState.dataCounterMode == DataCounterMode.DAY) {
@@ -256,7 +256,7 @@ internal fun OverviewTab(
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium
                         )
-                        TextButton(onClick = {
+                        TextButton(onClick = withTapHaptic {
                             try {
                                 context.startActivity(
                                     Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).apply {
@@ -274,6 +274,22 @@ internal fun OverviewTab(
                 DeviceInfoRow(R.string.boot_count_label, uiState.bootCount.toString())
                 DeviceInfoRow(R.string.charge_count_label, uiState.chargeCount.toString())
             }
+        }
+
+        // Data counters for the selected period (day or billing cycle), right under the
+        // usage card so both period counters sit together.
+        SettingsSectionCard(titleRes = R.string.data_counter_section) {
+            DeviceInfoRow(wifiDataLabelRes(uiState.dataCounterMode), gbTodayText(currentStats.wifiBytesTodayGb))
+            val mobileLabel = stringResource(simDataLabelRes(uiState.dataCounterMode))
+            val simName = currentStats.dataSimName.takeIf { it != UNAVAILABLE_TEXT }
+            DeviceInfoRow(
+                label = if (simName != null) {
+                    stringResource(R.string.label_with_sim, mobileLabel, simName)
+                } else {
+                    mobileLabel
+                },
+                value = gbTodayText(currentStats.mobileDataUsedGb)
+            )
         }
 
         // Resources (RAM, CPU, storage) — widget parity for people without the widget
@@ -427,16 +443,10 @@ internal fun OverviewTab(
             }
         }
 
-        // Data counters for the selected period (day or billing cycle)
-        SettingsSectionCard(titleRes = R.string.data_counter_section) {
-            DeviceInfoRow(wifiDataLabelRes(uiState.dataCounterMode), gbTodayText(currentStats.wifiBytesTodayGb))
-            DeviceInfoRow(simDataLabelRes(uiState.dataCounterMode), gbTodayText(currentStats.mobileDataUsedGb))
-        }
-
         Spacer(modifier = Modifier.height(8.dp))
 
         Button(
-            onClick = onRefresh,
+            onClick = withTapHaptic(onRefresh),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),

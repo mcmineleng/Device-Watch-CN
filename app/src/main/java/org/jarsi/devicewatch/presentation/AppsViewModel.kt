@@ -23,6 +23,8 @@ import javax.inject.Inject
 
 data class AppsUiState(
     val isLoading: Boolean = false,
+    /** True only while a pull-to-refresh-initiated reload is running. */
+    val isRefreshing: Boolean = false,
     val hasUsageAccess: Boolean = true,
     val screenTimes: List<AppScreenTime> = emptyList(),
     val screenTimeSegments: List<DonutSegment> = emptyList(),
@@ -54,46 +56,62 @@ class AppsViewModel @Inject constructor(
 
     /** Reloads everything the tab shows. Called from the UI on every resume. */
     fun refresh() {
+        viewModelScope.launch { refreshInternal() }
+    }
+
+    /** Pull-to-refresh entry: the same reload, but drives the pull indicator. */
+    fun pullRefresh() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-
-            if (!appUsageRepository.hasUsageAccess()) {
-                allScreenTimes = emptyList()
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        hasUsageAccess = false,
-                        screenTimes = emptyList(),
-                        screenTimeSegments = emptyList(),
-                        totalScreenTimeMillis = 0L,
-                        dataConsumers = emptyList(),
-                        apps = emptyList(),
-                    )
-                }
-                return@launch
+            _uiState.update { it.copy(isRefreshing = true) }
+            val startMillis = System.currentTimeMillis()
+            try {
+                refreshInternal()
+            } finally {
+                delayForPullIndicator(startMillis)
+                _uiState.update { it.copy(isRefreshing = false) }
             }
+        }
+    }
 
-            val oldestFirst = settings.appsOldestFirst()
-            val launchers = appUsageRepository.launcherPackages()
-            allScreenTimes = appUsageRepository.screenTimeToday()
-            val screenTimes = UsageEventAggregator.excludeLaunchers(allScreenTimes, launchers)
-            val dataConsumers = appUsageRepository.dataConsumersToday()
-            val apps = UsageEventAggregator.sortByLastUse(
-                appUsageRepository.launchableAppsByLastUse(), oldestFirst
-            )
+    private suspend fun refreshInternal() {
+        _uiState.update { it.copy(isLoading = true) }
+
+        if (!appUsageRepository.hasUsageAccess()) {
+            allScreenTimes = emptyList()
             _uiState.update {
                 it.copy(
                     isLoading = false,
-                    hasUsageAccess = true,
-                    screenTimes = screenTimes,
-                    screenTimeSegments = UsageEventAggregator.donutSegments(screenTimes),
-                    totalScreenTimeMillis = screenTimes.sumOf { time -> time.foregroundMillis },
-                    dataConsumers = dataConsumers,
-                    apps = apps,
-                    oldestFirst = oldestFirst,
-                    notificationAccessEnabled = notificationStats.isListenerEnabled(),
+                    hasUsageAccess = false,
+                    screenTimes = emptyList(),
+                    screenTimeSegments = emptyList(),
+                    totalScreenTimeMillis = 0L,
+                    dataConsumers = emptyList(),
+                    apps = emptyList(),
                 )
             }
+            return
+        }
+
+        val oldestFirst = settings.appsOldestFirst()
+        val launchers = appUsageRepository.launcherPackages()
+        allScreenTimes = appUsageRepository.screenTimeToday()
+        val screenTimes = UsageEventAggregator.excludeLaunchers(allScreenTimes, launchers)
+        val dataConsumers = appUsageRepository.dataConsumersToday()
+        val apps = UsageEventAggregator.sortByLastUse(
+            appUsageRepository.launchableAppsByLastUse(), oldestFirst
+        )
+        _uiState.update {
+            it.copy(
+                isLoading = false,
+                hasUsageAccess = true,
+                screenTimes = screenTimes,
+                screenTimeSegments = UsageEventAggregator.donutSegments(screenTimes),
+                totalScreenTimeMillis = screenTimes.sumOf { time -> time.foregroundMillis },
+                dataConsumers = dataConsumers,
+                apps = apps,
+                oldestFirst = oldestFirst,
+                notificationAccessEnabled = notificationStats.isListenerEnabled(),
+            )
         }
     }
 

@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -33,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLocale
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.annotation.StringRes
@@ -68,6 +70,7 @@ fun SinceChargePage(
     onBack: () -> Unit,
     viewModel: SinceChargeViewModel = hiltViewModel(),
 ) {
+    val view = LocalView.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     // Initial load + silent refresh while the page stays open, so the elapsed
@@ -84,7 +87,7 @@ fun SinceChargePage(
             TopAppBar(
                 title = { Text(stringResource(R.string.since_charge_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = withTapHaptic(onBack)) {
                         Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.content_description_back))
                     }
                 },
@@ -94,42 +97,51 @@ fun SinceChargePage(
             )
         }
     ) { paddingValues ->
-        LazyColumn(
+        PullToRefreshBox(
+            isRefreshing = uiState.isRefreshing,
+            onRefresh = {
+                view.performTapHaptic()
+                viewModel.refresh()
+            },
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+                .padding(paddingValues)
         ) {
-            val anchor = uiState.anchor
-            if (anchor == null) {
-                if (!uiState.isLoading) {
-                    item(key = "empty") {
-                        Text(
-                            text = stringResource(R.string.since_charge_empty),
-                            fontSize = 13.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                val anchor = uiState.anchor
+                if (anchor == null) {
+                    if (!uiState.isLoading) {
+                        item(key = "empty") {
+                            Text(
+                                text = stringResource(R.string.since_charge_empty),
+                                fontSize = 13.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
-                }
-            } else {
-                item(key = "summary") { SinceChargeSummaryCard(uiState) }
+                } else {
+                    item(key = "summary") { SinceChargeSummaryCard(uiState) }
 
-                // The notices live outside the screen-time card: exactly when there is
-                // no data to draw, the explanation must still be visible.
-                if (SinceChargeNotices.showUsageAccessNotice(hasAnchor = true, hasUsageAccess = uiState.hasUsageAccess)) {
-                    item(key = "usage_access") {
-                        DataQualityNotice(R.string.since_charge_usage_access_missing)
+                    // The notices live outside the screen-time card: exactly when there is
+                    // no data to draw, the explanation must still be visible.
+                    if (SinceChargeNotices.showUsageAccessNotice(hasAnchor = true, hasUsageAccess = uiState.hasUsageAccess)) {
+                        item(key = "usage_access") {
+                            DataQualityNotice(R.string.since_charge_usage_access_missing)
+                        }
                     }
-                }
 
-                if (uiState.screenTimeSegments.isNotEmpty()) {
-                    item(key = "screen_time") { SinceChargeScreenTimeCard(uiState) }
-                }
+                    if (uiState.screenTimeSegments.isNotEmpty()) {
+                        item(key = "screen_time") { SinceChargeScreenTimeCard(uiState) }
+                    }
 
-                if (SinceChargeNotices.showStaleNotice(hasAnchor = true, nowMillis = uiState.nowMillis, anchorMillis = anchor.timeMillis)) {
-                    item(key = "stale") {
-                        DataQualityNotice(R.string.since_charge_stale_note)
+                    if (SinceChargeNotices.showStaleNotice(hasAnchor = true, nowMillis = uiState.nowMillis, anchorMillis = anchor.timeMillis)) {
+                        item(key = "stale") {
+                            DataQualityNotice(R.string.since_charge_stale_note)
+                        }
                     }
                 }
             }

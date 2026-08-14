@@ -42,6 +42,7 @@ import android.telephony.CellInfoNr
 import android.telephony.CellInfoTdscdma
 import android.telephony.CellInfoWcdma
 import android.telephony.ServiceState
+import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import androidx.core.content.ContextCompat
 import org.jarsi.devicewatch.R
@@ -91,6 +92,33 @@ class SystemStatsRepositoryImpl @Inject constructor(
             wifiGb = readNetworkUsageGb(ConnectivityManager.TYPE_WIFI, startMillis),
             mobileGb = readNetworkUsageGb(ConnectivityManager.TYPE_MOBILE, startMillis),
         )
+    }
+
+    override suspend fun monthlyDataUsage(monthsBack: Int): List<MonthlyDataUsage> = withContext(dispatcher) {
+        val ranges = DataPeriodCalculator.monthRanges(LocalDate.now(), ZoneId.systemDefault(), monthsBack)
+        if (!hasUsageStatsAccess()) {
+            return@withContext ranges.map {
+                MonthlyDataUsage(it.month, UNAVAILABLE_DOUBLE, UNAVAILABLE_DOUBLE)
+            }
+        }
+        val currentMonth = ranges.first().month
+        ranges.map { range ->
+            var mobileGb = readNetworkUsageGb(
+                ConnectivityManager.TYPE_MOBILE, range.startMillis, range.endMillis
+            )
+            var wifiGb = readNetworkUsageGb(
+                ConnectivityManager.TYPE_WIFI, range.startMillis, range.endMillis
+            )
+            // A month entirely absent from Android's stats (beyond retention, or
+            // before the device was set up) returns empty buckets — exact zeros on
+            // both networks. Report those as unavailable rather than a made-up
+            // "0 MB"; a real month with the device in use is never 0 B on both.
+            if (range.month != currentMonth && mobileGb == 0.0 && wifiGb == 0.0) {
+                mobileGb = UNAVAILABLE_DOUBLE
+                wifiGb = UNAVAILABLE_DOUBLE
+            }
+            MonthlyDataUsage(month = range.month, mobileGb = mobileGb, wifiGb = wifiGb)
+        }
     }
 
     @Suppress("DEPRECATION") // Display.getRealMetrics/isHdr are the broadest cross-version reads
@@ -608,6 +636,7 @@ class SystemStatsRepositoryImpl @Inject constructor(
         } ?: UNAVAILABLE_TEXT
         val simState = readSimStateLabel(telephonyManager)
         val simSlots = readSimSlotCount(telephonyManager)
+        val dataSimName = readDataSimName()
 
         val uptimeMs = SystemClock.elapsedRealtime()
         val uptimeHours = uptimeMs / (1000 * 60 * 60)
@@ -651,6 +680,7 @@ class SystemStatsRepositoryImpl @Inject constructor(
             simOperator = simOperator,
             simState = simState,
             simSlots = simSlots,
+            dataSimName = dataSimName,
             networkCountry = networkCountry,
             wifiRssiDbm = wifiRssiDbm,
             wifiLinkSpeedMbps = wifiLinkSpeedMbps,
@@ -658,6 +688,37 @@ class SystemStatsRepositoryImpl @Inject constructor(
             ipAddress = ipAddress,
             uptimeText = uptimeText
         )
+    }
+
+    /**
+     * Carrier name of the SIM selected for mobile data, shown only on multi-SIM devices
+     * ([SystemStatsParser.dataSimDisplayName]). Data usage itself can never be split per
+     * SIM — subscriber ids are privileged since Android 10 — so this only labels which
+     * SIM the aggregate mobile counter currently runs on.
+     */
+    private fun readDataSimName(): String {
+        // Catches Exception, not just SecurityException: on Android 15 these
+        // SubscriptionManager calls throw UnsupportedOperationException on devices
+        // without FEATURE_TELEPHONY_SUBSCRIPTION (Wi-Fi-only tablets, Chromebooks).
+        return try {
+            val subscriptionManager = context.getSystemService(SubscriptionManager::class.java)
+                ?: return UNAVAILABLE_TEXT
+            // Single-SIM early-out before the more expensive per-subscription read —
+            // this runs on the service's 5-second tick.
+            val activeCount = subscriptionManager.activeSubscriptionInfoCount
+            if (activeCount < 2) return UNAVAILABLE_TEXT
+            val dataSubId = SubscriptionManager.getDefaultDataSubscriptionId()
+            val carrierName = if (dataSubId != SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
+                subscriptionManager.getActiveSubscriptionInfo(dataSubId)?.carrierName?.toString()
+            } else {
+                null
+            }
+            SystemStatsParser.dataSimDisplayName(carrierName, activeCount)
+        } catch (_: SecurityException) {
+            UNAVAILABLE_TEXT
+        } catch (_: Exception) {
+            UNAVAILABLE_TEXT
+        }
     }
 
     private data class CpuLoadResult(val percent: Int, val label: String)
@@ -847,7 +908,11 @@ class SystemStatsRepositoryImpl @Inject constructor(
     }
 
     @Suppress("DEPRECATION")
-    private fun readNetworkUsageGb(networkType: Int, startMillis: Long): Double {
+    private fun readNetworkUsageGb(
+        networkType: Int,
+        startMillis: Long,
+        endMillis: Long = System.currentTimeMillis(),
+    ): Double {
         if (!hasUsageStatsAccess()) return UNAVAILABLE_DOUBLE
 
         return try {
@@ -857,7 +922,7 @@ class SystemStatsRepositoryImpl @Inject constructor(
                 networkType,
                 null,
                 startMillis,
-                System.currentTimeMillis()
+                endMillis
             )
             (bucket.rxBytes + bucket.txBytes).toDouble() / GB_BYTES
         } catch (_: Exception) {

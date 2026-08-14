@@ -1,8 +1,6 @@
 package org.jarsi.devicewatch.presentation.ui
 
-import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -11,9 +9,11 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apps
-import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
@@ -28,23 +28,25 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.launch
 import org.jarsi.devicewatch.R
 import org.jarsi.devicewatch.presentation.AppsViewModel
 import org.jarsi.devicewatch.presentation.DashboardViewModel
@@ -55,7 +57,8 @@ internal enum class DashboardTab(
     @StringRes val labelRes: Int,
     val icon: ImageVector,
 ) {
-    Overview(R.string.tab_overview, Icons.Filled.Dashboard),
+    // Declaration order = pager page order; per-tab state is keyed by page index.
+    Overview(R.string.tab_overview, Icons.Filled.Home),
     Apps(R.string.tab_apps, Icons.Filled.Apps),
     Device(R.string.tab_device, Icons.Filled.PhoneAndroid),
     Settings(R.string.tab_settings, Icons.Filled.Settings),
@@ -68,7 +71,9 @@ fun SystemDashboardScreen(
     appsViewModel: AppsViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
+    val view = LocalView.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val appsUiState by appsViewModel.uiState.collectAsStateWithLifecycle()
 
     // Start the background monitoring service (independent of the notification permission result).
     fun startSystemMonitorService() {
@@ -84,23 +89,6 @@ fun SystemDashboardScreen(
         }
     }
 
-    fun missingRuntimePermissions(): Array<String> {
-        val permissions = buildList {
-            add(Manifest.permission.ACCESS_FINE_LOCATION)
-            add(Manifest.permission.READ_PHONE_STATE)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                add(Manifest.permission.NEARBY_WIFI_DEVICES)
-                add(Manifest.permission.POST_NOTIFICATIONS)
-            }
-        }
-
-        return permissions
-            .filter { permission ->
-                ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED
-            }
-            .toTypedArray()
-    }
-
     val runtimePermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) {
@@ -108,10 +96,11 @@ fun SystemDashboardScreen(
         viewModel.refresh()
     }
 
-    var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
-    val safeTabIndex = selectedTabIndex.coerceIn(0, DashboardTab.entries.lastIndex)
-    val selectedTab = DashboardTab.entries[safeTabIndex]
-    val tabStateHolder = rememberSaveableStateHolder()
+    // The pager is the single source of truth for the selected tab: swiping and
+    // the bottom bar both drive it, and each page keeps its own saved scroll state.
+    val pagerState = rememberPagerState(pageCount = { DashboardTab.entries.size })
+    val selectedTab = DashboardTab.entries[pagerState.currentPage]
+    val scope = rememberCoroutineScope()
 
     // Historia full-screen page, reached from the Overview usage-counters card.
     var showHistory by rememberSaveable { mutableStateOf(false) }
@@ -121,17 +110,53 @@ fun SystemDashboardScreen(
     var showSinceCharge by rememberSaveable { mutableStateOf(false) }
     BackHandler(enabled = showSinceCharge) { showSinceCharge = false }
 
+    // First-run intro state: shown until completed, and replayable from Settings.
+    val onboardingCompleted = uiState.onboardingCompleted
+    var replayOnboarding by rememberSaveable { mutableStateOf(false) }
+    // Suppresses the auto permission ask only when the intro's permission dialog
+    // was actually launched this session — deliberately NOT saveable, so a
+    // process-death restore falls back to asking.
+    var permissionsAskedInIntro by remember { mutableStateOf(false) }
+    BackHandler(enabled = replayOnboarding) { replayOnboarding = false }
+
     LaunchedEffect(Unit) {
+        // The monitor service needs no runtime permission — start it regardless of
+        // whether the intro is still open, or nothing collects while it is.
+        startSystemMonitorService()
         viewModel.refresh()
         viewModel.loadWidgetOpacity()
         viewModel.loadDataCounterSettings()
         viewModel.loadDeviceInfo()
-        val missingPermissions = missingRuntimePermissions()
-        if (missingPermissions.isNotEmpty()) {
-            runtimePermissionLauncher.launch(missingPermissions)
-        } else {
-            startSystemMonitorService()
+    }
+
+    // The automatic permission ask waits until the intro is out of the way — its
+    // permission page owns the asking on first run. If the dialog was already
+    // launched from the intro just now, the user made their choices; don't re-ask.
+    LaunchedEffect(onboardingCompleted) {
+        if (onboardingCompleted == true && !permissionsAskedInIntro) {
+            val missingPermissions = missingRuntimePermissions(context)
+            if (missingPermissions.isNotEmpty()) {
+                context.markRuntimePermissionsRequested()
+                runtimePermissionLauncher.launch(missingPermissions)
+            }
         }
+    }
+
+    if (onboardingCompleted == false || replayOnboarding) {
+        OnboardingPage(
+            usageAccessGranted = uiState.usageAccessEnabled,
+            notificationAccessGranted = uiState.notificationAccessEnabled,
+            onRequestRefresh = viewModel::refresh,
+            onFinish = { requestedPermissions ->
+                if (replayOnboarding) {
+                    replayOnboarding = false
+                } else {
+                    permissionsAskedInIntro = requestedPermissions
+                    viewModel.completeOnboarding()
+                }
+            },
+        )
+        return
     }
 
     if (showHistory) {
@@ -154,7 +179,7 @@ fun SystemDashboardScreen(
                     )
                 },
                 actions = {
-                    IconButton(onClick = {
+                    IconButton(onClick = withTapHaptic {
                         viewModel.refresh()
                         // The Apps tab has its own on-demand queries; refresh it too
                         // when it is the one on screen.
@@ -178,8 +203,10 @@ fun SystemDashboardScreen(
             NavigationBar {
                 DashboardTab.entries.forEachIndexed { index, tab ->
                     NavigationBarItem(
-                        selected = index == safeTabIndex,
-                        onClick = { selectedTabIndex = index },
+                        selected = index == pagerState.currentPage,
+                        onClick = withTapHaptic {
+                            scope.launch { pagerState.animateScrollToPage(index) }
+                        },
                         icon = { Icon(tab.icon, contentDescription = null) },
                         label = { Text(stringResource(tab.labelRes)) }
                     )
@@ -188,10 +215,28 @@ fun SystemDashboardScreen(
         }
     ) { paddingValues ->
         if (uiState.stats != null) {
-            Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
-                // Each tab keeps its own scroll position across tab switches.
-                tabStateHolder.SaveableStateProvider(selectedTab.name) {
-                    when (selectedTab) {
+            // Driven ONLY by the pull-initiated flags — never by generic loading
+            // state, or the spinner would pop on tab switches and the refresh icon.
+            val isPullRefreshing = uiState.isRefreshing ||
+                (selectedTab == DashboardTab.Apps && appsUiState.isRefreshing)
+            // One pull-to-refresh wrapper serves all four tabs via nested scroll.
+            PullToRefreshBox(
+                isRefreshing = isPullRefreshing,
+                onRefresh = {
+                    view.performTapHaptic()
+                    viewModel.pullRefresh()
+                    if (selectedTab == DashboardTab.Apps) {
+                        appsViewModel.pullRefresh()
+                    }
+                },
+                modifier = Modifier.fillMaxSize().padding(paddingValues)
+            ) {
+                // Swiping between tabs; the pager preserves each page's scroll state.
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.fillMaxSize(),
+                ) { page ->
+                    when (DashboardTab.entries[page]) {
                         DashboardTab.Overview -> OverviewTab(
                             uiState = uiState,
                             onRefresh = viewModel::refresh,
@@ -209,7 +254,8 @@ fun SystemDashboardScreen(
                             onCommitWidgetOpacity = viewModel::commitWidgetOpacity,
                             onDataCounterModeSelected = viewModel::onDataCounterModeSelected,
                             onCycleStartDayChange = viewModel::onCycleStartDayChange,
-                            onCommitCycleStartDay = viewModel::commitCycleStartDay
+                            onCommitCycleStartDay = viewModel::commitCycleStartDay,
+                            onShowIntro = { replayOnboarding = true }
                         )
                     }
                 }

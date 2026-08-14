@@ -5,6 +5,7 @@ import org.jarsi.devicewatch.data.AppUsageRepository
 import org.jarsi.devicewatch.data.DataCounterMode
 import org.jarsi.devicewatch.data.DataUsageSince
 import org.jarsi.devicewatch.data.DeviceInfo
+import org.jarsi.devicewatch.data.MonthlyDataUsage
 import org.jarsi.devicewatch.data.NotificationStats
 import org.jarsi.devicewatch.data.SystemStats
 import org.jarsi.devicewatch.data.SystemStatsRepository
@@ -298,6 +299,8 @@ private class FakeSystemStatsRepository(private val stats: SystemStats) : System
 
     override suspend fun dataUsedSince(startMillis: Long): DataUsageSince =
         DataUsageSince(wifiGb = 0.0, mobileGb = 0.0)
+
+    override suspend fun monthlyDataUsage(monthsBack: Int): List<MonthlyDataUsage> = emptyList()
 }
 
 private fun sampleDeviceInfo(): DeviceInfo = DeviceInfo(
@@ -396,6 +399,7 @@ private fun sampleStats(batteryLevel: Int = 50): SystemStats = SystemStats(
     simOperator = "Carrier",
     simState = "Ready",
     simSlots = 2,
+    dataSimName = "—",
     networkCountry = "FI",
     wifiRssiDbm = -55,
     wifiLinkSpeedMbps = 433,

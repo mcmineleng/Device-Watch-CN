@@ -213,6 +213,16 @@ internal object SystemStatsParser {
         }
     }
 
+    /**
+     * Carrier name of the active data SIM for display, or [UNAVAILABLE_TEXT]. Shown only
+     * with two or more active SIMs — on a single-SIM device the name would just repeat
+     * the operator already visible elsewhere.
+     */
+    fun dataSimDisplayName(carrierName: String?, activeSimCount: Int): String {
+        if (activeSimCount < 2) return UNAVAILABLE_TEXT
+        return carrierName?.trim()?.takeIf { it.isNotBlank() } ?: UNAVAILABLE_TEXT
+    }
+
     /** Plausible cellular signal range; filters out sentinel / out-of-range readings. */
     fun isValidDbm(dbm: Int): Boolean = dbm in -140..-40
 

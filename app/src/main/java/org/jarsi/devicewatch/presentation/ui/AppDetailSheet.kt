@@ -90,7 +90,7 @@ internal fun AppDetailSheet(
                         fontWeight = FontWeight.Medium,
                         textAlign = TextAlign.End
                     )
-                    TextButton(onClick = onEnableNotifications) {
+                    TextButton(onClick = withTapHaptic(onEnableNotifications)) {
                         Text(stringResource(R.string.notification_access_enable), fontSize = 12.sp)
                     }
                 }

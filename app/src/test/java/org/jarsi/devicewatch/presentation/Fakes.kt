@@ -18,6 +18,7 @@ internal class FakeAppSettingsRepository(
     var mode: DataCounterMode = DataCounterMode.DAY,
     var cycleDay: Int = 1,
     var oldestFirst: Boolean = true,
+    var onboardingShown: Boolean = false,
 ) : AppSettingsRepository {
     override fun dataCounterMode(): DataCounterMode = mode
 
@@ -35,6 +36,12 @@ internal class FakeAppSettingsRepository(
 
     override fun setAppsOldestFirst(oldestFirst: Boolean) {
         this.oldestFirst = oldestFirst
+    }
+
+    override fun onboardingShown(): Boolean = onboardingShown
+
+    override fun setOnboardingShown() {
+        onboardingShown = true
     }
 }
 

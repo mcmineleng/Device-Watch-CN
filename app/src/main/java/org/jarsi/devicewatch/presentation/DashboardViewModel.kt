@@ -15,6 +15,7 @@ import org.jarsi.devicewatch.data.UsageHistory
 import java.time.LocalDate
 import org.jarsi.devicewatch.widget.WidgetController
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,9 +28,20 @@ import javax.inject.Inject
 
 const val DEFAULT_WIDGET_OPACITY = 0.86f
 
+/** The reload is often near-instant; without a floor the pull indicator only flickers. */
+internal const val MIN_PULL_INDICATOR_MS = 800L
+
+/** Keeps the pull indicator visible for at least [MIN_PULL_INDICATOR_MS] from [pullStartMillis]. */
+internal suspend fun delayForPullIndicator(pullStartMillis: Long) {
+    val elapsed = System.currentTimeMillis() - pullStartMillis
+    if (elapsed < MIN_PULL_INDICATOR_MS) delay(MIN_PULL_INDICATOR_MS - elapsed)
+}
+
 data class DashboardUiState(
     val stats: SystemStats? = null,
     val deviceInfo: DeviceInfo? = null,
+    /** True only while a pull-to-refresh-initiated reload is running. */
+    val isRefreshing: Boolean = false,
     val isWidgetInstalled: Boolean = false,
     val lastUpdated: String = "--:--",
     val widgetOpacity: Float = DEFAULT_WIDGET_OPACITY,
@@ -44,6 +56,8 @@ data class DashboardUiState(
     val unlockCountingSupported: Boolean = true,
     val usageAccessEnabled: Boolean = false,
     val notificationAccessEnabled: Boolean = false,
+    /** null until read from settings; false shows the first-run intro. */
+    val onboardingCompleted: Boolean? = null,
 )
 
 @HiltViewModel
@@ -59,63 +73,91 @@ class DashboardViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(DashboardUiState())
     val uiState: StateFlow<DashboardUiState> = _uiState.asStateFlow()
 
+    init {
+        // Synchronous prefs read so the first composition already knows whether
+        // to show the intro — no main-UI flash before it.
+        _uiState.update { it.copy(onboardingCompleted = settings.onboardingShown()) }
+    }
+
+    /** Marks the first-run intro completed (or skipped). */
+    fun completeOnboarding() {
+        settings.setOnboardingShown()
+        _uiState.update { it.copy(onboardingCompleted = true) }
+    }
+
     /** Reads fresh stats, pushes them to every installed widget, and updates the screen. */
     fun refresh() {
+        viewModelScope.launch { refreshInternal() }
+    }
+
+    /** Pull-to-refresh entry: the same reload, but drives the pull indicator. */
+    fun pullRefresh() {
         viewModelScope.launch {
-            val stats = repository.getStats()
-            val widgetInstalled = widgetController.pushStats(stats)
+            _uiState.update { it.copy(isRefreshing = true) }
+            val startMillis = System.currentTimeMillis()
+            try {
+                refreshInternal()
+            } finally {
+                delayForPullIndicator(startMillis)
+                _uiState.update { it.copy(isRefreshing = false) }
+            }
+        }
+    }
 
-            // Usage counters cover the same period as the data counters. Android keeps
-            // no long history for these, so daily values are recorded into our own
-            // store: unlock counts and per-day screen time are backfilled from the
-            // ~7 days Android remembers, today's values come from a precise event
-            // pass, and boots/charges are incremented as they happen elsewhere.
-            val today = LocalDate.now()
-            val periodStart = DataPeriodCalculator.periodStart(
-                settings.dataCounterMode(), settings.cycleStartDay(), today
+    private suspend fun refreshInternal() {
+        val stats = repository.getStats()
+        val widgetInstalled = widgetController.pushStats(stats)
+
+        // Usage counters cover the same period as the data counters. Android keeps
+        // no long history for these, so daily values are recorded into our own
+        // store: unlock counts and per-day screen time are backfilled from the
+        // ~7 days Android remembers, today's values come from a precise event
+        // pass, and boots/charges are incremented as they happen elsewhere.
+        val today = LocalDate.now()
+        val periodStart = DataPeriodCalculator.periodStart(
+            settings.dataCounterMode(), settings.cycleStartDay(), today
+        )
+        val hasUsageAccess = appUsageRepository.hasUsageAccess()
+        val supportsUnlocks = appUsageRepository.supportsUnlockCounting()
+        if (hasUsageAccess) {
+            appUsageRepository.screenTimeByDay(HISTORY_BACKFILL_DAYS)
+                .forEach { (day, millis) -> usageHistory.recordScreenTime(day, millis) }
+            appUsageRepository.unlockCountsByDay(HISTORY_BACKFILL_DAYS)
+                .forEach { (day, count) -> usageHistory.recordUnlocks(day, count) }
+            appUsageRepository.usageTotalsToday()?.let { totals ->
+                usageHistory.recordScreenTime(today, totals.screenTimeMillis)
+                usageHistory.recordUnlocks(today, totals.unlockCount)
+            }
+        }
+        usageHistory.purge(today)
+
+        val notificationAccess = notificationStats.isListenerEnabled()
+        _uiState.update {
+            it.copy(
+                stats = stats,
+                isWidgetInstalled = widgetInstalled,
+                lastUpdated = currentTime(),
+                usageAccessEnabled = hasUsageAccess,
+                unlockCountingSupported = supportsUnlocks,
+                screenTimeMillis = if (hasUsageAccess) {
+                    usageHistory.screenTimeBetween(periodStart, today)
+                } else {
+                    -1L
+                },
+                unlockCount = if (hasUsageAccess && supportsUnlocks) {
+                    usageHistory.unlocksBetween(periodStart, today)
+                } else {
+                    UNAVAILABLE_INT
+                },
+                bootCount = usageHistory.bootsBetween(periodStart, today),
+                chargeCount = usageHistory.chargesBetween(periodStart, today),
+                notificationAccessEnabled = notificationAccess,
+                notificationCount = if (notificationAccess) {
+                    notificationStats.totalBetween(periodStart, today)
+                } else {
+                    UNAVAILABLE_INT
+                },
             )
-            val hasUsageAccess = appUsageRepository.hasUsageAccess()
-            val supportsUnlocks = appUsageRepository.supportsUnlockCounting()
-            if (hasUsageAccess) {
-                appUsageRepository.screenTimeByDay(HISTORY_BACKFILL_DAYS)
-                    .forEach { (day, millis) -> usageHistory.recordScreenTime(day, millis) }
-                appUsageRepository.unlockCountsByDay(HISTORY_BACKFILL_DAYS)
-                    .forEach { (day, count) -> usageHistory.recordUnlocks(day, count) }
-                appUsageRepository.usageTotalsToday()?.let { totals ->
-                    usageHistory.recordScreenTime(today, totals.screenTimeMillis)
-                    usageHistory.recordUnlocks(today, totals.unlockCount)
-                }
-            }
-            usageHistory.purge(today)
-
-            val notificationAccess = notificationStats.isListenerEnabled()
-            _uiState.update {
-                it.copy(
-                    stats = stats,
-                    isWidgetInstalled = widgetInstalled,
-                    lastUpdated = currentTime(),
-                    usageAccessEnabled = hasUsageAccess,
-                    unlockCountingSupported = supportsUnlocks,
-                    screenTimeMillis = if (hasUsageAccess) {
-                        usageHistory.screenTimeBetween(periodStart, today)
-                    } else {
-                        -1L
-                    },
-                    unlockCount = if (hasUsageAccess && supportsUnlocks) {
-                        usageHistory.unlocksBetween(periodStart, today)
-                    } else {
-                        UNAVAILABLE_INT
-                    },
-                    bootCount = usageHistory.bootsBetween(periodStart, today),
-                    chargeCount = usageHistory.chargesBetween(periodStart, today),
-                    notificationAccessEnabled = notificationAccess,
-                    notificationCount = if (notificationAccess) {
-                        notificationStats.totalBetween(periodStart, today)
-                    } else {
-                        UNAVAILABLE_INT
-                    },
-                )
-            }
         }
     }
 

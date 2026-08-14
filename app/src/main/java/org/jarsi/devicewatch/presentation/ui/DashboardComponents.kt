@@ -90,6 +90,11 @@ internal fun SettingsSectionCard(
 
 @Composable
 internal fun DeviceInfoRow(@StringRes labelRes: Int, value: String) {
+    DeviceInfoRow(label = stringResource(labelRes), value = value)
+}
+
+@Composable
+internal fun DeviceInfoRow(label: String, value: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -97,7 +102,7 @@ internal fun DeviceInfoRow(@StringRes labelRes: Int, value: String) {
         verticalAlignment = Alignment.Top
     ) {
         Text(
-            text = stringResource(labelRes),
+            text = label,
             fontSize = 12.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.weight(1f)
@@ -109,6 +114,31 @@ internal fun DeviceInfoRow(@StringRes labelRes: Int, value: String) {
             fontWeight = FontWeight.Medium,
             textAlign = TextAlign.End,
             modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+/**
+ * Label-above/full-width-value layout for long list-like values (sensor lists,
+ * driver strings): a half-width right-aligned column wraps them raggedly, with
+ * trailing commas at the right edge and one-word orphan lines.
+ */
+@Composable
+internal fun DeviceInfoRowLong(@StringRes labelRes: Int, value: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 5.dp)
+    ) {
+        Text(
+            text = stringResource(labelRes),
+            fontSize = 12.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = value,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium
         )
     }
 }
@@ -129,12 +159,12 @@ internal fun NightDimTimePickerDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton(onClick = { onConfirm(state.hour * 60 + state.minute) }) {
+            TextButton(onClick = withTapHaptic { onConfirm(state.hour * 60 + state.minute) }) {
                 Text(stringResource(R.string.action_ok))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            TextButton(onClick = withTapHaptic(onDismiss)) {
                 Text(stringResource(R.string.action_cancel))
             }
         },

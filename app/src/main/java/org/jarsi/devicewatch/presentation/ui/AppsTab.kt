@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -88,9 +90,12 @@ internal fun AppsTab(viewModel: AppsViewModel = hiltViewModel()) {
 
     if (!uiState.hasUsageAccess) {
         // Empty state as a call to action: explain and open the right settings page.
+        // Scrollable so the dashboard's pull-to-refresh (nested scroll) still works
+        // on exactly the screen that says "grant access".
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(32.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -117,7 +122,7 @@ internal fun AppsTab(viewModel: AppsViewModel = hiltViewModel()) {
             )
             Spacer(modifier = Modifier.height(20.dp))
             OutlinedButton(
-                onClick = { openAction(Settings.ACTION_USAGE_ACCESS_SETTINGS) },
+                onClick = withTapHaptic { openAction(Settings.ACTION_USAGE_ACCESS_SETTINGS) },
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Text(stringResource(R.string.usage_access_button), fontSize = 12.sp)
@@ -149,7 +154,7 @@ internal fun AppsTab(viewModel: AppsViewModel = hiltViewModel()) {
                         Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(8.dp))
-                            .clickable { viewModel.onAppSelected(segment.packageName!!) }
+                            .clickable(onClick = withTapHaptic { viewModel.onAppSelected(segment.packageName!!) })
                             .padding(vertical = 6.dp, horizontal = 4.dp)
                     } else {
                         Modifier
@@ -196,7 +201,7 @@ internal fun AppsTab(viewModel: AppsViewModel = hiltViewModel()) {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(8.dp))
-                                .clickable { viewModel.onAppSelected(entry.packageName) }
+                                .clickable(onClick = withTapHaptic { viewModel.onAppSelected(entry.packageName) })
                                 .padding(vertical = 6.dp, horizontal = 4.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -227,7 +232,7 @@ internal fun AppsTab(viewModel: AppsViewModel = hiltViewModel()) {
                         Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(8.dp))
-                            .clickable { viewModel.onAppSelected(consumer.packageName!!) }
+                            .clickable(onClick = withTapHaptic { viewModel.onAppSelected(consumer.packageName!!) })
                             .padding(vertical = 6.dp, horizontal = 4.dp)
                     } else {
                         Modifier
@@ -277,7 +282,7 @@ internal fun AppsTab(viewModel: AppsViewModel = hiltViewModel()) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.weight(1f)
                 )
-                IconButton(onClick = viewModel::onSortToggle) {
+                IconButton(onClick = withTapHaptic(viewModel::onSortToggle)) {
                     Icon(
                         imageVector = Icons.Outlined.SwapVert,
                         contentDescription = stringResource(R.string.sort_toggle_description),
@@ -311,7 +316,7 @@ private fun AppListRow(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .clickable(onClick = onClick)
+            .clickable(onClick = withTapHaptic(onClick))
             .padding(vertical = 6.dp, horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -327,7 +332,7 @@ private fun AppListRow(
             )
         }
         if (!app.isSystemApp) {
-            IconButton(onClick = onUninstall) {
+            IconButton(onClick = withTapHaptic(onUninstall)) {
                 Icon(
                     imageVector = Icons.Outlined.Delete,
                     contentDescription = stringResource(R.string.uninstall_content_description),
