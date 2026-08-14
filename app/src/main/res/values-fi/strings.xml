@@ -5,7 +5,7 @@
 
     <string name="main_title">Järjestelmän tila</string>
     <string name="refresh">Päivitä</string>
-    <string name="tab_overview">Yleiskuva</string>
+    <string name="tab_overview">Etusivu</string>
     <string name="tab_apps">Sovellukset</string>
     <string name="tab_device">Laite</string>
     <string name="tab_settings">Asetukset</string>
@@ -57,6 +57,34 @@
     <string name="history_metric_empty">Tälle mittarille ei ole vielä kertynyt historiaa. Päiväkohtaiset arvot ilmestyvät tähän datan kertyessä.</string>
     <string name="history_today">Tänään</string>
     <string name="history_yesterday">Eilen</string>
+    <string name="history_monthly_data_section">Datankäyttö kuukausittain</string>
+    <string name="history_monthly_mobile_column">Mobiili</string>
+    <string name="history_monthly_wifi_column">Wi-Fi</string>
+    <string name="access_state_granted">Myönnetty</string>
+    <string name="access_state_missing">Ei myönnetty</string>
+    <string name="history_monthly_metered_note">Android laskee vain maksulliseksi (metered) merkityn mobiilidatan. Rajattomaksi merkityn liittymän käyttö ei näy luvuissa.</string>
+    <string name="history_monthly_usage_access_missing">Datankäytön näyttäminen vaatii käyttötietojen käyttöoikeuden.</string>
+    <string name="onboarding_skip">Ohita</string>
+    <string name="onboarding_next">Seuraava</string>
+    <string name="onboarding_back">Takaisin</string>
+    <string name="onboarding_start">Aloita</string>
+    <string name="onboarding_welcome_title">Tervetuloa Laitevahtiin</string>
+    <string name="onboarding_welcome_body">Akku, käyttölaskurit ja verkkotiedot kotinäytön widgetissä, sovelluksessa ja latauksen näytönsäästäjässä — kaikki luetaan suoraan laitteeltasi, mitään ei lähetetä minnekään.</string>
+    <string name="onboarding_permissions_title">Luvat</string>
+    <string name="onboarding_permissions_body">Laitevahti vain lukee sen, minkä nämä luvat avaavat. Kaikki toimii ilmankin — kyseiset rivit näyttävät silloin viivan.</string>
+    <string name="onboarding_runtime_permissions_label">Perusluvat</string>
+    <string name="onboarding_runtime_permissions_desc">Sijainti ja Lähellä olevat laitteet paljastavat Wi-Fi-verkon nimen, Puhelin näyttää mobiiliverkon tiedot ja Ilmoitukset päästää akku täynnä -ilmoituksen läpi.</string>
+    <string name="onboarding_grant_permissions">Myönnä luvat</string>
+    <string name="onboarding_open_settings">Avaa asetukset</string>
+    <string name="onboarding_widget_title">Kotinäytön widget</string>
+    <string name="onboarding_widget_body">Lisää Laitevahti-widget kotinäytölle, niin näet akun, muistin, suorittimen, tallennustilan ja päivän datankäytön yhdellä silmäyksellä.</string>
+    <string name="onboarding_screensaver_title">Latauksen näytönsäästäjä</string>
+    <string name="onboarding_screensaver_body">Latauksen aikana Laitevahti voi toimia näytönsäästäjänä: iso kello, latausteho watteina, seuraava herätys ja automaattinen yöhimmennys. Ota käyttöön järjestelmän näytönsäästäjäasetuksista.</string>
+    <string name="onboarding_history_title">Laskurit ja historia</string>
+    <string name="onboarding_history_body">Ruutuaika, avaukset, ilmoitukset ja datankäyttö lasketaan päivittäin tai laskutusjaksoittain — päiväkohtainen historia kahdelta kuukaudelta ja kuukausittaiset datasummat niin pitkältä ajalta kuin Android niitä säilyttää.</string>
+    <string name="onboarding_done_title">Valmista!</string>
+    <string name="onboarding_done_body">Voit avata tämän esittelyn uudelleen milloin vain Asetukset-välilehdeltä.</string>
+    <string name="settings_show_intro">Näytä esittely uudelleen</string>
     <string name="since_charge_title">Latauksesta lähtien</string>
     <string name="since_charge_open">Avaa latausjakson näkymä</string>
     <string name="since_charge_summary_section">LATAUSJAKSO</string>
@@ -90,7 +118,7 @@
     <string name="app_detail_data">Data tänään</string>
     <string name="app_detail_notifications">Ilmoitukset tänään</string>
     <string name="special_access_section">ERIKOISOIKEUDET</string>
-    <string name="usage_access_button">Datankäyttö</string>
+    <string name="usage_access_button">Käyttötietojen käyttöoikeus</string>
     <string name="refresh_data">Päivitä tiedot</string>
     <string name="last_updated">Viimeksi päivitetty: %1$s</string>
 

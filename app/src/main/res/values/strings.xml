@@ -6,7 +6,7 @@
 
     <string name="main_title">System Dashboard</string>
     <string name="refresh">Refresh</string>
-    <string name="tab_overview">Overview</string>
+    <string name="tab_overview">Home</string>
     <string name="tab_apps">Apps</string>
     <string name="tab_device">Device</string>
     <string name="tab_settings">Settings</string>
@@ -58,6 +58,35 @@
     <string name="history_metric_empty">No history collected for this metric yet. Daily values appear here as data accumulates.</string>
     <string name="history_today">Today</string>
     <string name="history_yesterday">Yesterday</string>
+    <string name="history_monthly_data_section">Monthly data usage</string>
+    <string name="history_monthly_mobile_column">Mobile</string>
+    <string name="history_monthly_wifi_column">Wi-Fi</string>
+    <string name="label_with_sim" translatable="false">%1$s (%2$s)</string>
+    <string name="access_state_granted">Granted</string>
+    <string name="access_state_missing">Not granted</string>
+    <string name="history_monthly_metered_note">Android counts only metered mobile data. Usage on connections marked as unmetered (e.g. unlimited plans) is not included.</string>
+    <string name="history_monthly_usage_access_missing">Usage access is required to show data usage.</string>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_back">Back</string>
+    <string name="onboarding_start">Start</string>
+    <string name="onboarding_welcome_title">Welcome to Device Watch</string>
+    <string name="onboarding_welcome_body">Battery, usage counters and network stats on a home-screen widget, in the app and on a charging screensaver — all read straight from your device, nothing leaves it.</string>
+    <string name="onboarding_permissions_title">Permissions</string>
+    <string name="onboarding_permissions_body">Device Watch only reads what these permissions unlock. Everything keeps working without them — the affected rows just show a dash.</string>
+    <string name="onboarding_runtime_permissions_label">Basic permissions</string>
+    <string name="onboarding_runtime_permissions_desc">Location and Nearby devices reveal the Wi-Fi network name, Phone shows mobile network details, and Notifications lets the battery-full alert through.</string>
+    <string name="onboarding_grant_permissions">Grant permissions</string>
+    <string name="onboarding_open_settings">Open settings</string>
+    <string name="onboarding_widget_title">Home-screen widget</string>
+    <string name="onboarding_widget_body">Add the Device Watch widget to your home screen for a live view of battery, memory, CPU, storage and today\'s data usage.</string>
+    <string name="onboarding_screensaver_title">Charging screensaver</string>
+    <string name="onboarding_screensaver_body">While charging, Device Watch can work as a screensaver: a big clock, charging power in watts, the next alarm and an automatic night dim. Turn it on in the system screensaver settings.</string>
+    <string name="onboarding_history_title">Counters and history</string>
+    <string name="onboarding_history_body">Screen time, unlocks, notifications and data usage are counted per day or per billing cycle, with daily history for the last two months and monthly data totals as far back as Android keeps them.</string>
+    <string name="onboarding_done_title">All set!</string>
+    <string name="onboarding_done_body">You can reopen this intro any time from the Settings tab.</string>
+    <string name="settings_show_intro">Show intro again</string>
     <string name="since_charge_title">Since charge</string>
     <string name="since_charge_open">Open the since-charge view</string>
     <string name="since_charge_summary_section">CHARGE PERIOD</string>
@@ -91,7 +120,7 @@
     <string name="app_detail_data">Data today</string>
     <string name="app_detail_notifications">Notifications today</string>
     <string name="special_access_section">SPECIAL ACCESS</string>
-    <string name="usage_access_button">Data usage</string>
+    <string name="usage_access_button">Usage access</string>
     <string name="refresh_data">Refresh data</string>
     <string name="last_updated">Last updated: %1$s</string>
 
