@@ -1,0 +1,9 @@
+• First-run intro with guided permission setup
+• Monthly data usage history (up to 12 months)
+• Swipe between tabs
+• Pull-to-refresh on every page
+• Haptic feedback on buttons
+• Data amounts with two decimals
+• Overview tab is now Home, with the data counter moved up
+• Active data-SIM carrier shown on dual-SIM devices
+• Many small fixes

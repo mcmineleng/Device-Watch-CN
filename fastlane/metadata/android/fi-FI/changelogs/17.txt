@@ -1,0 +1,9 @@
+• Ensikäynnistyksen esittely ja opastettu lupien myöntäminen
+• Kuukausittainen datankäyttöhistoria (enintään 12 kk)
+• Välilehtien vaihto sivelemällä
+• Vedä alas päivittääksesi joka sivulla
+• Värinäpalaute napeille
+• Datamäärät kahdella desimaalilla
+• Yleiskuva-välilehti on nyt Etusivu ja datalaskuri siirtyi ylemmäs
+• Aktiivisen data-SIMin operaattori kahden SIMin laitteilla
+• Paljon pieniä korjauksia

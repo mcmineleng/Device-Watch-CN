@@ -31,17 +31,21 @@ The default app language is English. Finnish users get a localized app name and 
 - Home screen widget for battery, memory, CPU, storage, Wi-Fi, mobile network, data usage, uptime, today's screen time, and last update time
 - Tapping the widget anywhere opens the app
 - Data counters per calendar day or per one-month billing cycle with a configurable start day (month lengths handled automatically); the selection applies to the widget and the in-app data rows
-- Tabbed dashboard UI: Overview (live battery ring, usage counters, RAM/CPU/storage meters and data counters — full widget parity for people who skip the widget), Apps (usage insights), Device (hardware, SIM and Wi-Fi details), and Settings
+- Tabbed dashboard UI with swipe navigation between tabs: Home (live battery ring, usage counters, data counters and RAM/CPU/storage meters — full widget parity for people who skip the widget), Apps (usage insights), Device (hardware, SIM and Wi-Fi details), and Settings
+- First-run intro that walks through the widget, screensaver, counters and history, with guided permission setup explaining what each permission unlocks; replayable any time from Settings
+- Pull-to-refresh on every page, and haptic feedback on buttons
 - Apps tab: Digital-Wellbeing-style screen-time donut (top apps + others) with tappable legend, top data consumers today, and a last-opened list (oldest and never-used apps first, reversible) with per-app uninstall; home-screen launchers excluded from usage rankings
 - Per-app detail sheet: screen time, times opened, last opened, data used and notifications today
-- Usage counters on the Overview tab, scoped to the same day/billing-cycle setting as the data counters: total screen time, screen unlocks (API 28+), a filtered notification count (ongoing notifications, group summaries and updates to an existing notification are not counted, so the number stays believable), device restarts and charging sessions
+- Usage counters on the Home tab, scoped to the same day/billing-cycle setting as the data counters: total screen time, screen unlocks (API 28+), a filtered notification count (ongoing notifications, group summaries and updates to an existing notification are not counted, so the number stays believable), device restarts and charging sessions
 - The app keeps its own 62-day daily history for these counters (Android has no retroactive API): unlocks and screen time are backfilled from the ~7 days Android remembers, restarts are derived from BOOT_COUNT deltas (immune to Android re-delivering BOOT_COMPLETED after app updates), and notification/charging tallies accumulate from install onward
 - On-device notification log with app name, timestamp, title, and text; 7-day retention; tapping an entry opens the app that posted it (when still installed)
 - History page (opened from the usage card) listing exact daily values for the retained 62 days — screen time, unlocks, notifications, device restarts, and charging sessions; each metric states since when it has been collected, and the page refreshes itself while open
+- Monthly data usage history on the History page: metered mobile and Wi-Fi totals per calendar month, served straight from Android's own statistics for up to 12 months back (no local storage needed)
 - Since-charge page (opened from the battery card): the period since the battery was last charged full — or since the charger was unplugged, when charging stopped short of full — with elapsed time, battery drop and average drain, unlocks, notifications, Wi-Fi/mobile data, and a per-app screen-time donut over that window (Android does not expose real per-app battery percentages to third-party apps, so the page shows honest usage numbers instead)
 - Today's screen time also appears in the widget footer, refreshed at most once a minute so the 5-second widget loop stays untouched
 - Most-opened-today list on the Apps tab, and last-opened rows show the clock time for apps used today (following the system 12/24-hour setting) with two-tier staleness colors: amber after 1 month unused, red after 3 months (Google's app-hibernation threshold) or never used
 - Special-access buttons show a green/red status dot for granted/missing access
+- Active data-SIM carrier shown next to the mobile network name on dual-SIM devices
 - Privacy dashboard shortcut for per-app location/microphone/camera usage (system view; that data is not exposed to third-party apps)
 - Interactive Android screensaver with a large clock, date, next alarm, charging status, battery percentage, voltage, temperature, and live charging power in watts
 - Screensaver clock follows the device 12/24-hour setting, with a second-aligned tick
@@ -92,7 +96,7 @@ The app follows an MVVM + repository structure with Hilt dependency injection.
 presentation/   DashboardViewModel, AppsViewModel, HistoryViewModel and
                 SinceChargeViewModel (StateFlow UI state)
 presentation/ui Compose-only screen code: SystemDashboardScreen scaffold with a
-                Material 3 NavigationBar, Overview/Apps/Device/Settings tabs and
+                Material 3 NavigationBar, Home/Apps/Device/Settings tabs and
                 shared components (SettingsSectionCard, DeviceInfoRow, AppIcon,
                 ScreenTimeDonut, AppDetailSheet)
 data/           SystemStatsRepository + AppUsageRepository (per-app usage, on demand)
@@ -109,7 +113,7 @@ di/             Hilt modules and entry points
 ```
 
 - `SystemStatsRepositoryImpl` is the single source of truth. It is a `@Singleton`, reads system/kernel sources off the main thread on an injected dispatcher, and serializes its CPU-load snapshots with a `Mutex`.
-- `SystemDashboardScreen` observes the ViewModels with `collectAsStateWithLifecycle()` and obtains them via `hiltViewModel()`. The four tabs are flat destinations switched with saveable tab state (no navigation library); each tab keeps its own scroll position. Permission requests and the foreground-service start stay at screen level.
+- `SystemDashboardScreen` observes the ViewModels with `collectAsStateWithLifecycle()` and obtains them via `hiltViewModel()`. The four tabs are pages of a `HorizontalPager` whose state is the single source of truth for the selected tab — swiping and the bottom bar both drive it (no navigation library); each page keeps its own scroll position. Permission requests and the foreground-service start stay at screen level.
 - Services and the widget receiver use `@AndroidEntryPoint`; the Glance `ActionCallback` reaches the graph through a Hilt `EntryPoint`.
 
 ## Tech Stack
