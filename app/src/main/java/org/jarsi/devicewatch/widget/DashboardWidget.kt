@@ -784,11 +784,11 @@ fun mobileDataText(usedGb: Double, totalGb: Double): String {
 /**
  * Data-usage amount with an adaptive unit. Values under 1 GB are shown in megabytes so that
  * small-but-real usage (a few MB on a Wi-Fi-heavy day) never renders as a broken-looking
- * "0.0 GB". Values of 1 GB and above keep the compact one-decimal GB form.
+ * "0.00 GB". Values of 1 GB and above use a two-decimal GB form.
  */
 fun dataAmountText(gbValue: Double): String {
     if (gbValue < 0.0) return UNAVAILABLE_TEXT
-    if (gbValue >= 1.0) return gbText(gbValue)
+    if (gbValue >= 1.0) return gbText(gbValue, decimals = 2)
     val mb = gbValue * 1024.0
     return when {
         mb >= 10.0 -> String.format(Locale.getDefault(), "%.0f MB", mb)

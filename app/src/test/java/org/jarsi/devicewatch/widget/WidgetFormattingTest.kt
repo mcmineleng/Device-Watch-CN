@@ -63,8 +63,8 @@ class WidgetFormattingTest {
     @Test
     fun `mobileDataText handles used-only, used-of-total, and unavailable`() {
         assertThat(mobileDataText(UNAVAILABLE_DOUBLE, UNAVAILABLE_DOUBLE)).isEqualTo(UNAVAILABLE_TEXT)
-        assertThat(mobileDataText(1.5, UNAVAILABLE_DOUBLE)).isEqualTo("1.5 GB")
-        assertThat(mobileDataText(1.5, 10.0)).isEqualTo("1.5 GB / 10 GB")
+        assertThat(mobileDataText(1.5, UNAVAILABLE_DOUBLE)).isEqualTo("1.50 GB")
+        assertThat(mobileDataText(1.5, 10.0)).isEqualTo("1.50 GB / 10 GB")
     }
 
     @Test
@@ -76,10 +76,17 @@ class WidgetFormattingTest {
     @Test
     fun `dataAmountText scales between MB and GB`() {
         assertThat(dataAmountText(UNAVAILABLE_DOUBLE)).isEqualTo(UNAVAILABLE_TEXT)
-        assertThat(dataAmountText(1.5)).isEqualTo("1.5 GB")
+        assertThat(dataAmountText(1.5)).isEqualTo("1.50 GB")
         assertThat(dataAmountText(0.5)).isEqualTo("512 MB")
         assertThat(dataAmountText(15.0 / 1024.0)).isEqualTo("15 MB")
         assertThat(dataAmountText(0.00015)).isEqualTo("0.2 MB")
         assertThat(dataAmountText(0.0)).isEqualTo("0 MB")
+    }
+
+    @Test
+    fun `dataAmountText shows gigabytes with two decimals`() {
+        assertThat(dataAmountText(2.456)).isEqualTo("2.46 GB")
+        assertThat(dataAmountText(1.0)).isEqualTo("1.00 GB")
+        assertThat(dataAmountText(18.204)).isEqualTo("18.20 GB")
     }
 }
