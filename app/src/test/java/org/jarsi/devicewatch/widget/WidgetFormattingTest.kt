@@ -1,8 +1,8 @@
-package org.jarsi.devicewatch.widget
+package org.jarsi.devicewatch.mineleng.zhcn.widget
 
-import org.jarsi.devicewatch.data.UNAVAILABLE_DOUBLE
-import org.jarsi.devicewatch.data.UNAVAILABLE_INT
-import org.jarsi.devicewatch.data.UNAVAILABLE_TEXT
+import org.jarsi.devicewatch.mineleng.zhcn.data.UNAVAILABLE_DOUBLE
+import org.jarsi.devicewatch.mineleng.zhcn.data.UNAVAILABLE_INT
+import org.jarsi.devicewatch.mineleng.zhcn.data.UNAVAILABLE_TEXT
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before

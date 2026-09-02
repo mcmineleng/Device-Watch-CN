@@ -2,7 +2,7 @@
 
 **Last updated: 12 July 2026**
 
-Device Watch (`org.jarsi.devicewatch`) is a device monitoring app developed by Jarsi Sode.
+Device Watch (`org.jarsi.devicewatch.mineleng.zhcn`) is a device monitoring app developed by Jarsi Sode.
 
 ## The short version
 

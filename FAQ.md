@@ -81,7 +81,7 @@ one and later update from the other. F-Droid additionally delivers updates autom
 
 ### Updating from v1.3.1 or older
 
-The application ID changed in v1.4.0 from `com.example.modernwidget` to `org.jarsi.devicewatch`,
+The application ID changed in v1.4.0 from `com.example.modernwidget` to `org.jarsi.devicewatch.mineleng.zhcn`,
 so Android treats it as a new app. Install the new version, re-grant its permissions, re-add the
 widget and re-select the screensaver, then uninstall the old one. Collected usage history starts
 fresh.

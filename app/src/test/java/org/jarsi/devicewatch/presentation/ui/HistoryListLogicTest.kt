@@ -1,6 +1,6 @@
-package org.jarsi.devicewatch.presentation.ui
+package org.jarsi.devicewatch.mineleng.zhcn.presentation.ui
 
-import org.jarsi.devicewatch.presentation.HistoryDay
+import org.jarsi.devicewatch.mineleng.zhcn.presentation.HistoryDay
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import java.time.LocalDate

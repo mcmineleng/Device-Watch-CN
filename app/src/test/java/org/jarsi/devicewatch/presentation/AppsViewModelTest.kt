@@ -1,13 +1,13 @@
-package org.jarsi.devicewatch.presentation
+package org.jarsi.devicewatch.mineleng.zhcn.presentation
 
-import org.jarsi.devicewatch.data.AppDataUsage
-import org.jarsi.devicewatch.data.AppScreenTime
-import org.jarsi.devicewatch.data.AppSettingsRepository
-import org.jarsi.devicewatch.data.AppUsageRepository
-import org.jarsi.devicewatch.data.DataCounterMode
-import org.jarsi.devicewatch.data.LaunchableApp
-import org.jarsi.devicewatch.data.NotificationStats
-import org.jarsi.devicewatch.data.UNAVAILABLE_INT
+import org.jarsi.devicewatch.mineleng.zhcn.data.AppDataUsage
+import org.jarsi.devicewatch.mineleng.zhcn.data.AppScreenTime
+import org.jarsi.devicewatch.mineleng.zhcn.data.AppSettingsRepository
+import org.jarsi.devicewatch.mineleng.zhcn.data.AppUsageRepository
+import org.jarsi.devicewatch.mineleng.zhcn.data.DataCounterMode
+import org.jarsi.devicewatch.mineleng.zhcn.data.LaunchableApp
+import org.jarsi.devicewatch.mineleng.zhcn.data.NotificationStats
+import org.jarsi.devicewatch.mineleng.zhcn.data.UNAVAILABLE_INT
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

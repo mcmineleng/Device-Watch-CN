@@ -1,140 +1,136 @@
-# Device Watch
+# Device Watch CN
+- **原项目**：[Device Watch](https://github.com/jrs8205)
+- **原作者**：jrs8205
+- **本修改版源码**：[Device Watch CN](https://github.com/mcmineleng/Device-Watch-CN)
+- **修改内容** 修改app/src/main/res/values/strings.xml 为简体中文，删除对中文用户无用的app/src/main/res/values-fi
 
+[![下载最新版本](https://img.shields.io/github/v/release/mcmineleng/Device-Watch-CN?sort=semver)](https://github.com/mcmineleng/Device-Watch-CN/releases/latest)
+[![下载历史版本](https://img.shields.io/github/downloads/mcmineleng/Device-Watch-CN/total)](https://github.com/mcmineleng/Device-Watch-CN/releases)
+[![许可证: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](LICENSE)
+
+原项目标签：
 [![Latest release](https://img.shields.io/github/v/release/jrs8205/Device-Watch?sort=semver)](https://github.com/jrs8205/Device-Watch/releases/latest)
-[![F-Droid](https://img.shields.io/f-droid/v/org.jarsi.devicewatch)](https://f-droid.org/packages/org.jarsi.devicewatch)
-[![Aptoide](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fws75.aptoide.com%2Fapi%2F7%2Fapp%2FgetMeta%3Fpackage_name%3Dorg.jarsi.devicewatch&query=%24.data.file.vername&label=Aptoide&prefix=v&color=FE6446)](https://device-watch.en.aptoide.com/app)
+[![F-Droid](https://img.shields.io/f-droid/v/org.jarsi.devicewatch.mineleng.zhcn)](https://f-droid.org/packages/org.jarsi.devicewatch.mineleng.zhcn)
+[![Aptoide](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fws75.aptoide.com%2Fapi%2F7%2Fapp%2FgetMeta%3Fpackage_name%3Dorg.jarsi.devicewatch.mineleng.zhcn&query=%24.data.file.vername&label=Aptoide&prefix=v&color=FE6446)](https://device-watch.en.aptoide.com/app)
+[![Downloads](https://img.shields.io/github/downloads/jrs8205/Device-Watch/total)](https://github.com/jrs8205/Device-Watch/releases)
+[![Built with Jetpack Compose](https://img.shields.io/badge/Built%20with-Jetpack%20Compose-4285F4)](https://developer.android.com/jetpack/compose)
+[![Latest release](https://img.shields.io/github/v/release/jrs8205/Device-Watch?sort=semver)](https://github.com/jrs8205/Device-Watch/releases/latest)
+[![F-Droid](https://img.shields.io/f-droid/v/org.jarsi.devicewatch.mineleng.zhcn)](https://f-droid.org/packages/org.jarsi.devicewatch.mineleng.zhcn)
+[![Aptoide](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fws75.aptoide.com%2Fapi%2F7%2Fapp%2FgetMeta%3Fpackage_name%3Dorg.jarsi.devicewatch.mineleng.zhcn&query=%24.data.file.vername&label=Aptoide&prefix=v&color=FE6446)](https://device-watch.en.aptoide.com/app)
 [![Downloads](https://img.shields.io/github/downloads/jrs8205/Device-Watch/total)](https://github.com/jrs8205/Device-Watch/releases)
 [![Built with Jetpack Compose](https://img.shields.io/badge/Built%20with-Jetpack%20Compose-4285F4)](https://developer.android.com/jetpack/compose)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](LICENSE)
 
-Device Watch is an Android device monitoring app with a Jetpack Glance home screen widget, per-app usage insights (screen time, data, notifications and more), and an interactive screensaver for charging or docked use.
+Device Watch CN 是一款 Android 设备监控应用，配备 Jetpack Glance 桌面小部件、按应用维度的使用情况洞察（屏幕时间、数据流量、通知等），以及适用于充电或底座模式的交互式屏保。
 
-The default app language is English. Finnish users get a localized app name and UI through Android's `values-fi` resources.
+应用语言为中文
 
-## Screenshots
+## 截图
 
 <p>
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/01.png" width="24%" alt="Home-screen widget" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/02.png" width="24%" alt="Overview tab" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/03.png" width="24%" alt="Screen-time donut" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/04.png" width="24%" alt="Since-charge view" />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/01.png" width="24%" alt="桌面小部件" />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/02.png" width="24%" alt="概览标签页" />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/03.png" width="24%" alt="屏幕使用时长" />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/04.png" width="24%" alt="本次充电视图" />
 </p>
 <p>
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/05.png" width="24%" alt="Usage history" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/06.png" width="24%" alt="Most opened and top data" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/07.png" width="24%" alt="Last opened list" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/08.png" width="24%" alt="Charging screensaver" />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/05.png" width="24%" alt="使用历史" />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/06.png" width="24%" alt="最常打开和流量排行" />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/07.png" width="24%" alt="最后打开列表" />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/08.png" width="24%" alt="充电屏保" />
 </p>
 
-## Features
+## 功能特性
 
-- Home screen widget for battery, memory, CPU, storage, Wi-Fi, mobile network, data usage, uptime, today's screen time, and last update time
-- Tapping the widget anywhere opens the app
-- Data counters per calendar day or per one-month billing cycle with a configurable start day (month lengths handled automatically); the selection applies to the widget and the in-app data rows
-- Tabbed dashboard UI with swipe navigation between tabs: Home (live battery ring, usage counters, data counters and RAM/CPU/storage meters — full widget parity for people who skip the widget), Apps (usage insights), Device (hardware, SIM and Wi-Fi details), and Settings
-- First-run intro that walks through the widget, screensaver, counters and history, with guided permission setup explaining what each permission unlocks; replayable any time from Settings
-- Pull-to-refresh on every page, and haptic feedback on buttons
-- Apps tab: Digital-Wellbeing-style screen-time donut (top apps + others) with tappable legend, top data consumers today, and a last-opened list (oldest and never-used apps first, reversible) with per-app uninstall; home-screen launchers excluded from usage rankings
-- Per-app detail sheet: screen time, times opened, last opened, data used and notifications today
-- Usage counters on the Home tab, scoped to the same day/billing-cycle setting as the data counters: total screen time, screen unlocks (API 28+), a filtered notification count (ongoing notifications, group summaries and updates to an existing notification are not counted, so the number stays believable), device restarts and charging sessions
-- The app keeps its own 62-day daily history for these counters (Android has no retroactive API): unlocks and screen time are backfilled from the ~7 days Android remembers, restarts are derived from BOOT_COUNT deltas (immune to Android re-delivering BOOT_COMPLETED after app updates), and notification/charging tallies accumulate from install onward
-- On-device notification log with app name, timestamp, title, and text; 7-day retention; tapping an entry opens the app that posted it (when still installed)
-- History page (opened from the usage card) listing exact daily values for the retained 62 days — screen time, unlocks, notifications, device restarts, and charging sessions; each metric states since when it has been collected, and the page refreshes itself while open
-- Monthly data usage history on the History page: metered mobile and Wi-Fi totals per calendar month, served straight from Android's own statistics for up to 12 months back (no local storage needed)
-- Since-charge page (opened from the battery card): the period since the battery was last charged full — or since the charger was unplugged, when charging stopped short of full — with elapsed time, battery drop and average drain, unlocks, notifications, Wi-Fi/mobile data, and a per-app screen-time donut over that window (Android does not expose real per-app battery percentages to third-party apps, so the page shows honest usage numbers instead)
-- Today's screen time also appears in the widget footer, refreshed at most once a minute so the 5-second widget loop stays untouched
-- Most-opened-today list on the Apps tab, and last-opened rows show the clock time for apps used today (following the system 12/24-hour setting) with two-tier staleness colors: amber after 1 month unused, red after 3 months (Google's app-hibernation threshold) or never used
-- Special-access buttons show a green/red status dot for granted/missing access
-- Active data-SIM carrier shown next to the mobile network name on dual-SIM devices
-- Privacy dashboard shortcut for per-app location/microphone/camera usage (system view; that data is not exposed to third-party apps)
-- Interactive Android screensaver with a large clock, date, next alarm, charging status, battery percentage, voltage, temperature, and live charging power in watts
-- Screensaver clock follows the device 12/24-hour setting, with a second-aligned tick
-- Battery-level-tinted background gradient and a softly pulsing charge indicator in the screensaver
-- Optional screensaver dimming: manual, or automatic on a configurable night schedule (default 22:00–07:00)
-- Remembered screensaver rotation setting for repeated charging sessions; the background gradient mirrors with the 180° layout swap
-- Larger screensaver rotation touch target for easier use
-- Battery full notification while the screensaver is active
-- English default resources with Finnish localization
-- Runtime permission handling for location, phone state, nearby Wi-Fi devices, and notifications
-- Usage Access shortcut for network and app-usage statistics
-- Release build configured with R8 minification and resource shrinking
+- 桌面小部件，显示电池、内存、CPU、存储、Wi-Fi、移动网络、数据用量、运行时间、今日屏幕时间和上次更新时间
+- 点击小部件任意位置即可打开应用
+- 数据计数器支持按自然日或按月账单周期（可配置起始日，自动处理各月天数差异）；该设置同时应用于小部件和应用内的数据行
+- 标签式仪表盘界面，支持标签间滑动切换：首页（实时电池环、使用计数器、数据计数器和 内存/CPU/存储仪表——为不使用小部件的用户提供完整功能对等）、应用（使用情况）、设备（硬件、SIM 和 WLAN 详情）和设置
+- 首次运行引导，介绍小部件、屏保、计数器和历史功能，并引导权限设置，说明每项权限的作用；可随时从设置中重播
+- 每个页面均支持下拉刷新，按钮带有触感反馈
+- 应用标签页：类似数字健康风格的屏幕时间甜甜圈图（排行前列的应用 + 其他），图例可点击；今日流量消耗排行；以及最后打开列表（最早打开和从未使用的应用优先，可反转排序），支持按应用卸载；主屏幕启动器不参与使用排行
+- 按应用详情面板：屏幕时间、打开次数、最后打开时间、今日数据用量和通知数
+- 首页标签页上的使用计数器，与数据计数器共享相同的时间范围（日/账单周期）：总屏幕时间、屏幕解锁次数（API 28+）、过滤后的通知计数（不统计持续通知、分组摘要和已存在通知的更新，因此数字真实可信）、设备重启次数和充电会话次数
+- 应用自行保留 62 天的每日历史记录（Android 没有追溯 API）：解锁和屏幕时间从 Android 保留的约 7 天数据回填，重启次数从 BOOT_COUNT 增量推导（不受 Android 在应用更新后重新发送 BOOT_COMPLETED 的影响），通知和充电计数从安装时开始累积
+- 设备端通知日志，包含应用名称、时间戳、标题和内容；保留 7 天；点击条目可打开发送该通知的应用（如果仍然安装）
+- 历史页面（从使用情况卡片进入）显示保留的 62 天每日详细数值——屏幕时间、解锁次数、通知数、设备重启次数和充电会话次数；每个指标都标明从何时开始收集，页面打开时会自动刷新
+- 历史页面上的月度数据用量历史：按自然月统计的计费移动数据和 WLAN 总量，直接来自 Android 自身的统计数据，最长可回溯 12 个月（无需本地存储）
+- 自充电以来页面（从电池卡片进入）：自上次电池充满电以来的时间段——或者当充电未满时，自充电器拔下以来的时间段——包含经过时间、电池耗电量和平均耗电率、解锁次数、通知数、Wi-Fi/移动数据用量，以及该时间段内按应用统计的屏幕时间甜甜圈图（Android 不向第三方应用暴露真实的按应用电池百分比，因此该页面显示诚实的使用量数据）
+- 今日屏幕时间也会显示在小部件底部，刷新频率不超过每分钟一次，以免影响 5 秒的小部件更新循环
+- 应用标签页上的今日最常打开列表，最后打开行显示今天使用过的应用的时钟时间（遵循系统 12/24 小时制），并带有两档陈旧颜色提示：1 个月未用显示琥珀色，3 个月未用或从未使用显示红色（对应 Google 的应用休眠阈值）
+- 特殊访问权限按钮显示绿色/红色状态点，表示已授予/缺失权限
+- 在双 SIM 卡设备上，在移动网络名称旁显示当前数据 SIM 卡运营商
+- 隐私仪表盘快捷方式，查看按应用划分的位置/麦克风/摄像头使用情况（系统视图；这些数据不向第三方应用暴露）
+- 交互式 Android 屏保，包含大时钟、日期、下一个闹钟、充电状态、电池百分比、电压、温度和实时充电功率（瓦特）
+- 屏保时钟遵循设备 12/24 小时制设置，秒针同步
+- 屏保中带有基于电池电量的渐变色背景和柔和脉动的充电指示器
+- 可选的屏保调暗模式：手动，或在可配置的夜间时段自动开启（默认 22:00–07:00）
+- 记住屏保旋转设置，用于重复充电会话；背景渐变会随 180° 布局切换而镜像翻转
+- 更大的屏保旋转触控区域，便于操作
+- 屏保激活时的电池充满通知
+- 中文默认语言
+- 位置、电话状态、附近 Wi-Fi 设备和通知的运行时权限处理
+- 使用情况访问快捷方式，用于网络和应用使用统计
+- 发布版本配置了 R8 代码混淆和资源压缩
 
-Every metric is real data read from Android and kernel sources. When a value is not available with the permissions granted, the UI shows a dash (`—`) instead of a fabricated value.
+每个指标都是真实的 Android 和内核源数据。当权限不足导致数值不可用时，界面会显示破折号（`—`）而非伪造的值。
 
-## Download
+## 下载
 
-[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/packages/org.jarsi.devicewatch)
-[<img src="assets/get-it-on-aptoide.svg" alt="Download from Aptoide" height="80">](https://aptoide-mmp.aptoide.com/api/v1/download?package_name=org.jarsi.devicewatch&oemid=584d342f9e68b0c33244b78f3cc21a24&redirect_url=https%3A%2F%2Fws.catappult.io%2Fapi%2FdirectToConsumer%2Forg.jarsi.devicewatch%2Fdownload)
+Device Watch CN 可通过 [Release](https://github.com/mcmineleng/Device-Watch-CN/releases/latest) 获取
 
-Device Watch is available on
-[**F-Droid**](https://f-droid.org/packages/org.jarsi.devicewatch), which also delivers updates
-automatically, and on [**Aptoide**](https://device-watch.en.aptoide.com/app), which also offers a
-[direct APK download](https://aptoide-mmp.aptoide.com/api/v1/download?package_name=org.jarsi.devicewatch&oemid=584d342f9e68b0c33244b78f3cc21a24&redirect_url=https%3A%2F%2Fws.catappult.io%2Fapi%2FdirectToConsumer%2Forg.jarsi.devicewatch%2Fdownload).
-Alternatively, download the latest signed APK from the
-[**Releases**](https://github.com/jrs8205/Device-Watch/releases/latest) page and open it on your
-device to install. Releases are built reproducibly and F-Droid verifies each build against the
-developer-signed APK, so every source ships an APK signed with the same key and later versions
-install cleanly as an update over an existing one — from any source.
+需要 **Android 8.0（API 26）** 或更高版本。
 
-> **Upgrading from v1.3.1 or older:** the application ID changed in v1.4.0 from
-> `com.example.modernwidget` to `org.jarsi.devicewatch`, so Android treats it as a new app.
-> Install the new version, re-grant its permissions, re-add the widget and re-select the
-> screensaver, then uninstall the old one. Collected usage history starts fresh.
+## 问题排查
 
-Requires **Android 8.0 (API 26)** or newer.
+常见问题——屏保不启动、移动数据流量显示为零、通知计数、历史保留等——均在 [原版问题排查页面](https://github.com/jrs8205/Device-Watch/wiki/Troubleshooting) 中解答。
 
-## Troubleshooting
+## 架构
 
-Common questions — the screensaver not starting, mobile data showing zero, notification counts,
-history retention — are answered in the [FAQ](FAQ.md).
-
-## Architecture
-
-The app follows an MVVM + repository structure with Hilt dependency injection.
+应用遵循 MVVM + 仓储结构，使用 Hilt 依赖注入。
 
 ```
-presentation/   DashboardViewModel, AppsViewModel, HistoryViewModel and
-                SinceChargeViewModel (StateFlow UI state)
-presentation/ui Compose-only screen code: SystemDashboardScreen scaffold with a
-                Material 3 NavigationBar, Home/Apps/Device/Settings tabs and
-                shared components (SettingsSectionCard, DeviceInfoRow, AppIcon,
-                ScreenTimeDonut, AppDetailSheet)
-data/           SystemStatsRepository + AppUsageRepository (per-app usage, on demand)
-                AppSettingsRepository (data-counter mode, cycle start day, sort order)
-                NotificationStats + UsageHistory (own daily tallies, 62-day retention)
+presentation/   DashboardViewModel, AppsViewModel, HistoryViewModel 和
+                SinceChargeViewModel（StateFlow UI 状态）
+presentation/ui 纯 Compose 屏幕代码：SystemDashboardScreen 脚手架，包含
+                Material 3 NavigationBar，首页/应用/设备/设置标签页和
+                共享组件（SettingsSectionCard, DeviceInfoRow, AppIcon,
+                ScreenTimeDonut, AppDetailSheet）
+data/           SystemStatsRepository + AppUsageRepository（按应用使用情况，按需加载）
+                AppSettingsRepository（数据计数器模式、周期起始日、排序方式）
+                NotificationStats + UsageHistory（自有每日计数，62天保留）
                 SystemStatsParser, DataPeriodCalculator, UsageEventAggregator,
-                NotificationCounting (pure, unit-tested calculations)
-                SystemStats / AppUsage models (+ UNAVAILABLE_* sentinels)
-widget/         Glance DashboardWidget, WidgetStateUpdater (DataStore writes),
-                WidgetController (port the ViewModel talks to), receiver and actions
-system/         SystemMonitorService (foreground), MonitorDreamService (screensaver),
-                NotificationCounterService (notification listener)
-di/             Hilt modules and entry points
+                NotificationCounting（纯函数、单元测试覆盖的计算）
+                SystemStats / AppUsage 数据模型（包含 UNAVAILABLE_* 哨兵值）
+widget/         Glance DashboardWidget, WidgetStateUpdater（DataStore 写入），
+                WidgetController（ViewModel 交互的端口），receiver 和 actions
+system/         SystemMonitorService（前台服务）, MonitorDreamService（屏保）,
+                NotificationCounterService（通知监听器）
+di/             Hilt 模块和入口点
 ```
 
-- `SystemStatsRepositoryImpl` is the single source of truth. It is a `@Singleton`, reads system/kernel sources off the main thread on an injected dispatcher, and serializes its CPU-load snapshots with a `Mutex`.
-- `SystemDashboardScreen` observes the ViewModels with `collectAsStateWithLifecycle()` and obtains them via `hiltViewModel()`. The four tabs are pages of a `HorizontalPager` whose state is the single source of truth for the selected tab — swiping and the bottom bar both drive it (no navigation library); each page keeps its own scroll position. Permission requests and the foreground-service start stay at screen level.
-- Services and the widget receiver use `@AndroidEntryPoint`; the Glance `ActionCallback` reaches the graph through a Hilt `EntryPoint`.
+- `SystemStatsRepositoryImpl` 是单一数据源。它是一个 `@Singleton`，在注入的调度器上从主线程外读取系统/内核源，并使用 `Mutex` 序列化其 CPU 负载快照。
+- `SystemDashboardScreen` 使用 `collectAsStateWithLifecycle()` 观察 ViewModel，并通过 `hiltViewModel()` 获取。四个标签页是 `HorizontalPager` 的页面，其状态是当前选中标签页的唯一数据源——滑动和底部导航栏共同驱动它（不使用导航库）；每个页面保持自己的滚动位置。权限请求和前台服务启动保持在屏幕级别。
+- 服务和 widget receiver 使用 `@AndroidEntryPoint`；Glance `ActionCallback` 通过 Hilt `EntryPoint` 访问依赖图。
 
-## Tech Stack
+## 技术栈
 
 - Kotlin 2.4, AGP 9.2.1, Gradle 9.6
 - `compileSdk 36`, `minSdk 26`, `targetSdk 35`
-- Jetpack Compose (BOM 2026.06.00) + Material 3, Jetpack Glance 1.1.1
-- Hilt 2.60 with KSP 2.3.9
+- Jetpack Compose（BOM 2026.06.00）+ Material 3, Jetpack Glance 1.1.1
+- Hilt 2.60 配合 KSP 2.3.9
 - AndroidX Lifecycle 2.10, Activity 1.13, DataStore 1.2, WorkManager 2.11
-- Dependencies are managed through the `gradle/libs.versions.toml` version catalog
+- 依赖通过 `gradle/libs.versions.toml` 版本目录管理
 
-## Language Behavior
+## 语言行为
 
-Android selects the UI language from resource qualifiers:
+Android 根据资源限定符选择 UI 语言：
 
-- English and every non-Finnish device language use `app/src/main/res/values/strings.xml`
-- Finnish devices use `app/src/main/res/values-fi/strings.xml`
+- 汉语和非汉语用户均使用汉语的 `app/src/main/res/values/strings.xml`
 
-## Permissions
+## 权限
 
-The app requests only permissions that are used by the current feature set:
+应用仅请求当前功能集使用的权限：
 
 - `RECEIVE_BOOT_COMPLETED`
 - `FOREGROUND_SERVICE`
@@ -147,14 +143,14 @@ The app requests only permissions that are used by the current feature set:
 - `NEARBY_WIFI_DEVICES`
 - `READ_PHONE_STATE`
 - `PACKAGE_USAGE_STATS`
-- `QUERY_ALL_PACKAGES` (resolve names/icons for the per-app data list; the app is distributed outside Google Play)
-- `REQUEST_DELETE_PACKAGES` (uninstall from the last-opened list via the system dialog)
+- `QUERY_ALL_PACKAGES`（解析按应用数据列表的名称/图标；应用在 Google Play 外分发）
+- `REQUEST_DELETE_PACKAGES`（通过系统对话框从最后打开列表卸载）
 
-Notification counting additionally uses the optional Notification access special permission (a `NotificationListenerService`); counting starts when access is granted. Do Not Disturb and Bluetooth control permissions are not requested.
+通知计数额外使用可选的“通知访问”特殊权限（`NotificationListenerService`）；授予访问权限后开始计数。不请求勿扰模式和蓝牙控制权限。
 
-## Building
+## 构建
 
-Use the Gradle wrapper from the repository root:
+从仓库根目录使用 Gradle 包装器：
 
 ```powershell
 .\gradlew.bat :app:compileDebugKotlin
@@ -164,43 +160,43 @@ Use the Gradle wrapper from the repository root:
 .\gradlew.bat :app:assembleRelease
 ```
 
-Release builds are minified with R8 and resource shrinking. The release APK is unsigned unless a local `keystore.properties` and keystore are present.
+发布版本使用 R8 代码混淆和资源压缩。除非存在本地 `keystore.properties` 和密钥库，否则发布 APK 是未签名的。
 
-## Testing
+## 测试
 
-JVM unit tests cover the pure parsing/maths and the ViewModel:
+JVM 单元测试覆盖纯解析/数学逻辑和 ViewModel：
 
 ```powershell
 .\gradlew.bat :app:testDebugUnitTest
 ```
 
-- `SystemStatsParserTest` — CPU-load deltas, frequency residency/pressure, battery wear, mobile-generation mapping, Wi-Fi SSID/band, signal filtering
-- `DataPeriodCalculatorTest` — billing-cycle period math (start-day clamping across month lengths, leap February, year rollover)
-- `UsageEventAggregatorTest` — foreground-session folding (in-app activity switches, unclosed sessions), donut segments, last-use sorting, day math, staleness tiers and launch-count ranking
-- `NotificationCountingTest` — the "real notification" filter and count retention/purging
-- `UsageHistoryLogicTest` — BOOT_COUNT delta dedup and history-key retention
-- `WidgetFormattingTest` — widget display formatters (locale-pinned), adaptive MB/GB data amounts
-- `ChargeAnchorLogicTest` — the since-charge anchor state machine (full-charge vs unplug anchors, reboot persistence)
-- `NotificationLogCodecTest` / `NotificationLogImplTest` — notification-log line escaping, retention and ordering
-- `HistoryListLogicTest` — per-metric history trimming and "collected since" labels
-- `SinceChargeNoticesTest` — visibility of the usage-access and stale-period notices
-- `DashboardViewModelTest` — refresh, opacity load/commit, data-counter settings, daily counters, widget-installed flag (hand-written fakes)
-- `AppsViewModelTest` — Apps-tab loading, empty state without usage access, detail assembly, sort toggle persistence
-- `HistoryViewModelTest` — history-page loading and silent refresh
-- `SinceChargeViewModelTest` — since-charge window queries, empty state, non-overlapping refreshes
-- `ClockFitTest` — screensaver clock width-fit math
-- `DreamLogicTest` — night-dim window (incl. crossing midnight) and charging-wattage normalization
+- `SystemStatsParserTest` — CPU 负载增量、频率驻留/压力、电池损耗、移动网络代际映射、Wi-Fi SSID/频段、信号过滤
+- `DataPeriodCalculatorTest` — 账单周期数学（起始日跨月夹紧、闰年二月、跨年回绕）
+- `UsageEventAggregatorTest` — 前台会话折叠（应用内 Activity 切换、未关闭会话）、甜甜圈分段、最后使用排序、日期计算、陈旧度分层和启动计数排名
+- `NotificationCountingTest` — “真实通知”过滤器和计数保留/清理
+- `UsageHistoryLogicTest` — BOOT_COUNT 增量去重和历史键保留
+- `WidgetFormattingTest` — 小部件显示格式化（固定区域设置）、自适应 MB/GB 数据量
+- `ChargeAnchorLogicTest` — 自充电以来锚点状态机（满充锚点 vs 拔充锚点、重启持久化）
+- `NotificationLogCodecTest` / `NotificationLogImplTest` — 通知日志行转义、保留和排序
+- `HistoryListLogicTest` — 按指标的历史修剪和“自…起收集”标签
+- `SinceChargeNoticesTest` — 使用情况访问和过时期限通知的可见性
+- `DashboardViewModelTest` — 刷新、透明度加载/提交、数据计数器设置、每日计数器、小部件已安装标志（手写 fakes）
+- `AppsViewModelTest` — 应用标签页加载、无使用权限时的空状态、详情组装、排序切换持久化
+- `HistoryViewModelTest` — 历史页面加载和静默刷新
+- `SinceChargeViewModelTest` — 自充电以来窗口查询、空状态、非重叠刷新
+- `ClockFitTest` — 屏保时钟宽度适配计算
+- `DreamLogicTest` — 夜间调暗窗口（含跨午夜）和充电功率归一化
 
-## Build Outputs
+## 构建输出
 
 ```text
 app/build/outputs/apk/debug/app-debug.apk
 app/build/outputs/apk/release/app-release.apk
 ```
 
-APK and signing files are intentionally ignored by Git.
+APK 和签名文件已通过 Git 忽略。
 
-## Project Structure
+## 项目结构
 
 ```text
 app/src/main/java/org/jarsi/devicewatch/
@@ -284,8 +280,6 @@ app/src/test/java/org/jarsi/devicewatch/
   widget/WidgetFormattingTest.kt
 ```
 
-## License
+## 许可证
 
-Device Watch is free software, licensed under the GNU General Public License,
-version 3 of the License, or (at your option) any later version
-(SPDX: `GPL-3.0-or-later`). See [LICENSE](LICENSE) for the full text.
+Device Watch CN 是自由软件，遵循 GNU 通用公共许可证第 3 版或（由您选择）任何更高版本（SPDX: `GPL-3.0-or-later`）。完整文本请参阅 [LICENSE](LICENSE) 文件。

@@ -1,8 +1,8 @@
-package org.jarsi.devicewatch.data
+package org.jarsi.devicewatch.mineleng.zhcn.data
 
 import android.telephony.TelephonyManager
-import org.jarsi.devicewatch.data.SystemStatsParser.CoreFreq
-import org.jarsi.devicewatch.data.SystemStatsParser.CpuSnapshot
+import org.jarsi.devicewatch.mineleng.zhcn.data.SystemStatsParser.CoreFreq
+import org.jarsi.devicewatch.mineleng.zhcn.data.SystemStatsParser.CpuSnapshot
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 

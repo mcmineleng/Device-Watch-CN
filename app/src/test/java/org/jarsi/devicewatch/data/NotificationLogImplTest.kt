@@ -1,4 +1,4 @@
-package org.jarsi.devicewatch.data
+package org.jarsi.devicewatch.mineleng.zhcn.data
 
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule

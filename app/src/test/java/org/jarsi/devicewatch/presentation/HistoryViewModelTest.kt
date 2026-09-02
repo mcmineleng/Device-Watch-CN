@@ -1,15 +1,15 @@
-package org.jarsi.devicewatch.presentation
+package org.jarsi.devicewatch.mineleng.zhcn.presentation
 
-import org.jarsi.devicewatch.data.DataUsageSince
-import org.jarsi.devicewatch.data.DeviceInfo
-import org.jarsi.devicewatch.data.MonthlyDataUsage
-import org.jarsi.devicewatch.data.NotificationLog
-import org.jarsi.devicewatch.data.NotificationLogEntry
-import org.jarsi.devicewatch.data.NotificationStats
-import org.jarsi.devicewatch.data.SystemStats
-import org.jarsi.devicewatch.data.SystemStatsRepository
-import org.jarsi.devicewatch.data.UsageDayTally
-import org.jarsi.devicewatch.data.UsageHistory
+import org.jarsi.devicewatch.mineleng.zhcn.data.DataUsageSince
+import org.jarsi.devicewatch.mineleng.zhcn.data.DeviceInfo
+import org.jarsi.devicewatch.mineleng.zhcn.data.MonthlyDataUsage
+import org.jarsi.devicewatch.mineleng.zhcn.data.NotificationLog
+import org.jarsi.devicewatch.mineleng.zhcn.data.NotificationLogEntry
+import org.jarsi.devicewatch.mineleng.zhcn.data.NotificationStats
+import org.jarsi.devicewatch.mineleng.zhcn.data.SystemStats
+import org.jarsi.devicewatch.mineleng.zhcn.data.SystemStatsRepository
+import org.jarsi.devicewatch.mineleng.zhcn.data.UsageDayTally
+import org.jarsi.devicewatch.mineleng.zhcn.data.UsageHistory
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers

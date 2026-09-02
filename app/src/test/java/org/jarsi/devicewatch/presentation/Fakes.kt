@@ -1,15 +1,15 @@
-package org.jarsi.devicewatch.presentation
+package org.jarsi.devicewatch.mineleng.zhcn.presentation
 
-import org.jarsi.devicewatch.data.AppDataUsage
-import org.jarsi.devicewatch.data.AppScreenTime
-import org.jarsi.devicewatch.data.AppSettingsRepository
-import org.jarsi.devicewatch.data.AppUsageRepository
-import org.jarsi.devicewatch.data.DataCounterMode
-import org.jarsi.devicewatch.data.LaunchableApp
-import org.jarsi.devicewatch.data.NotificationStats
-import org.jarsi.devicewatch.data.UsageHistory
-import org.jarsi.devicewatch.data.UsageDayTally
-import org.jarsi.devicewatch.data.UsageTotals
+import org.jarsi.devicewatch.mineleng.zhcn.data.AppDataUsage
+import org.jarsi.devicewatch.mineleng.zhcn.data.AppScreenTime
+import org.jarsi.devicewatch.mineleng.zhcn.data.AppSettingsRepository
+import org.jarsi.devicewatch.mineleng.zhcn.data.AppUsageRepository
+import org.jarsi.devicewatch.mineleng.zhcn.data.DataCounterMode
+import org.jarsi.devicewatch.mineleng.zhcn.data.LaunchableApp
+import org.jarsi.devicewatch.mineleng.zhcn.data.NotificationStats
+import org.jarsi.devicewatch.mineleng.zhcn.data.UsageHistory
+import org.jarsi.devicewatch.mineleng.zhcn.data.UsageDayTally
+import org.jarsi.devicewatch.mineleng.zhcn.data.UsageTotals
 import java.time.LocalDate
 
 /** Hand-written fakes shared by the presentation-layer ViewModel tests. */
