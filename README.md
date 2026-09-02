@@ -199,7 +199,7 @@ APK 和签名文件已通过 Git 忽略。
 ## 项目结构
 
 ```text
-app/src/main/java/org/jarsi/devicewatch/
+app/src/main/java/org/jarsi/devicewatch/mineleng/zhcn
   MainActivity.kt
   MonitorApp.kt
   data/
